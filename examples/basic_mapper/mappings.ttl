@@ -1,0 +1,14 @@
+# Mapping file defining equivalences between source and target ontologies
+# These mappings are merged with input data so SPARQL queries can reference them
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix src: <http://example.org/source#> .
+@prefix tgt: <http://example.org/target#> .
+
+# Class mappings
+src:Person  owl:equivalentClass  tgt:Human .
+src:Company owl:equivalentClass  tgt:Organization .
+
+# Property mappings
+src:hasName  owl:equivalentProperty  tgt:name .
+src:worksFor owl:equivalentProperty  tgt:employedBy .

@@ -1,0 +1,41 @@
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix tont: <http://telicent.io/ontology/> .
+@prefix un: <http://un.org/region#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Northern Europe
+un:154 a ies:RegionOfWorld ;
+    ies:hasName un:154_name ;
+    ies:isIdentifiedBy un:154_un_id ;
+    tont:primaryName "Northern Europe"^^xsd:string .
+
+un:154_name a ies:PlaceName ;
+    ies:representationValue "Northern Europe"^^xsd:string .
+
+un:154_un_id a ies:GeoIdentity ;
+    ies:inScheme <http://un.org/region-code> ;
+    ies:representationValue "150"^^xsd:string .
+
+# Northern America
+un:021 a ies:RegionOfWorld ;
+    ies:hasName un:021_name ;
+    ies:isIdentifiedBy un:021_un_id .
+
+un:021_name a ies:PlaceName ;
+    ies:representationValue "Northern America"^^xsd:string .
+
+un:021_un_id a ies:GeoIdentity ;
+    ies:inScheme <http://un.org/region-code> ;
+    ies:representationValue "021"^^xsd:string .
+
+# Australia and New Zealand
+un:053 a ies:RegionOfWorld ;
+    ies:hasName un:053_name ;
+    ies:isIdentifiedBy un:053_un_id .
+
+un:053_name a ies:PlaceName ;
+    ies:representationValue "Australia and New Zealand"^^xsd:string .
+
+un:053_un_id a ies:GeoIdentity ;
+    ies:inScheme <http://un.org/region-code> ;
+    ies:representationValue "053"^^xsd:string .

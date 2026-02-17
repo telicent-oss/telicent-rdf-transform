@@ -1,0 +1,40 @@
+# Basic example configuration
+# Demonstrates using a mapping file with generic SPARQL queries
+
+namespaces:
+  src: "http://example.org/source#"
+  tgt: "http://example.org/target#"
+  owl: "http://www.w3.org/2002/07/owl#"
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+mapping_file: mappings.ttl
+mapping_file_format: text/turtle
+
+queries:
+  # Map classes using owl:equivalentClass from the mapping file
+  - name: "map_classes"
+    description: "Transform class types using mapping file equivalences"
+    enabled: true
+    order: 1
+    query: |
+      CONSTRUCT {
+        ?subject a ?targetClass .
+      }
+      WHERE {
+        ?subject a ?sourceClass .
+        ?sourceClass owl:equivalentClass ?targetClass .
+      }
+
+  # Map properties using owl:equivalentProperty from the mapping file
+  - name: "map_properties"
+    description: "Transform properties using mapping file equivalences"
+    enabled: true
+    order: 2
+    query: |
+      CONSTRUCT {
+        ?subject ?targetProp ?object .
+      }
+      WHERE {
+        ?subject ?sourceProp ?object .
+        ?sourceProp owl:equivalentProperty ?targetProp .
+      }

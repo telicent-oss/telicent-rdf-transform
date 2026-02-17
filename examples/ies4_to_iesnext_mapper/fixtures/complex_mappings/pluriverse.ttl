@@ -1,0 +1,12 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:possible_world_001 a ies:PossibleWorld ;
+    ies:isPartOf ies:pluriverse .
+
+ies:pluriverse ies:hasName data:pluriverse_name .
+
+data:pluriverse_name a ies:Name ;
+    ies:representationValue "The Pluriverse" .

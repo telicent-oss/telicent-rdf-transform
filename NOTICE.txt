@@ -1,0 +1,4 @@
+telicent-rdf-transform
+============
+
+Copyright (c) 2026 Telicent Ltd.

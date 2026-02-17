@@ -1,0 +1,47 @@
+# Batch file mapper configuration
+# Transforms IES4 ontology to IES Next ontology
+
+namespaces:
+  ies: "http://ies.data.gov.uk/ontology/ies4#"
+  ies_core: "http://purl.org/ies/core/v0/ont/"
+  ies_top: "http://purl.org/ies/top/v0/ont/"
+  owl: "http://www.w3.org/2002/07/owl#"
+  tont: "http://telicent.io/ontology/"
+
+mapping_file: mappings.ttl
+mapping_file_format: text/turtle
+
+queries:
+  # Transform properties using owl:equivalentProperty mappings
+  - name: "map_properties"
+    description: "Map IES4 properties to IES Next equivalents"
+    enabled: true
+    order: 1
+    query: |
+      DELETE {
+        ?subject ?sourceProp ?object .
+      }
+      INSERT {
+        ?subject ?targetProp ?object .
+      }
+      WHERE {
+        ?subject ?sourceProp ?object .
+        ?sourceProp owl:equivalentProperty ?targetProp .
+      }
+
+  # Transform classes using owl:equivalentClass mappings
+  - name: "map_classes"
+    description: "Map IES4 classes to IES Next equivalents"
+    enabled: true
+    order: 2
+    query: |
+      DELETE {
+        ?subject a ?sourceClass .
+      }
+      INSERT {
+        ?subject a ?targetClass .
+      }
+      WHERE {
+        ?subject a ?sourceClass .
+        ?sourceClass owl:equivalentClass ?targetClass .
+      }

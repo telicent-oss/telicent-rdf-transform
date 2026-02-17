@@ -1,0 +1,12 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:FRA_border a ies:Location .
+
+data:BEL_border a ies:Location .
+
+data:crossing_of_FRA_and_BEL a ies:Crossing ;
+    ies:crossingOf data:FRA_border ;
+    ies:crossingOf data:BEL_border .

@@ -1,0 +1,21 @@
+# Sample input data using the "source" ontology
+
+@prefix : <http://example.org/data#> .
+@prefix src: <http://example.org/source#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# People
+:john a src:Person ;
+    src:hasName "John Smith" ;
+    src:worksFor :acme .
+
+:jane a src:Person ;
+    src:hasName "Jane Doe" ;
+    src:worksFor :globex .
+
+# Companies
+:acme a src:Company ;
+    src:hasName "Acme Corporation" .
+
+:globex a src:Company ;
+    src:hasName "Globex Inc" .

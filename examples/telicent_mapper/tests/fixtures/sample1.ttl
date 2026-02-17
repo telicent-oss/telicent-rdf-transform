@@ -1,0 +1,17 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Person1 a ex:Person ;
+    ex:name "Alice Smith" ;
+    ex:age 30 ;
+    ex:email "alice@example.org" .
+
+ex:Person2 a ex:Person ;
+    ex:name "Bob Jones" ;
+    ex:age 25 ;
+    ex:email "bob@example.org" .
+
+ex:Organization1 a ex:Organization ;
+    ex:name "Acme Corp" ;
+    ex:hasEmployee ex:Person1 , ex:Person2 .

@@ -1,0 +1,173 @@
+---
+# Example configuration using RDF mapping file for ontology transformations
+# This approach is cleaner when you have many property/class mappings
+
+# Namespace definitions
+# PRIMARY PURPOSE: Control prefix bindings in OUTPUT graph serialization
+# These namespaces determine how URIs are abbreviated in the output RDF/Turtle.
+#   With prefixes:  ies_core:Country
+#   Without:        <http://purl.org/ies/core/v0/ont#Country>
+#
+# SECONDARY PURPOSE: Auto-prefix SPARQL queries (if they don't already have PREFIX declarations)
+# If your queries already include PREFIX declarations (like below), these namespaces
+# are NOT required for the queries to work - they only affect output formatting.
+namespaces:
+  ies: "http://ies.data.gov.uk/ontology/ies4#"
+  ies_core: "http://purl.org/ies/core/v0/ont/"
+  ies_top: "http://purl.org/ies/top/v0/ont/"
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+  owl: "http://www.w3.org/2002/07/owl#"
+
+# Optional: RDF mapping file configuration
+# Path to RDF file with owl:equivalentProperty/Class mappings
+mapping_file: resource-mapping.ttl
+mapping_file_format: text/turtle  # Optional, defaults to text/turtle
+
+# SPARQL UPDATE queries that use the mapping file
+# All queries use DELETE/INSERT WHERE to modify the working graph in place
+queries:
+  # Query description: Combined mapping - transform both properties and classes
+  # Deletes original IES4 triples and inserts mapped IES Next triples
+  - name: "map_properties_and_classes"
+    description: "Transform properties, classes, and individuals using owl:equivalentProperty/Class and owl:sameAs mappings"
+    enabled: true
+    order: 100
+    query: |
+
+      # Map properties: delete IES4 property triple, insert IES Next property triple
+      DELETE {
+        ?subject ?sourceProp ?object .
+      }
+      INSERT {
+        ?targetSubject ?targetProp ?targetObject .
+      }
+      WHERE {
+        ?subject ?sourceProp ?object .
+        ?sourceProp owl:equivalentProperty ?targetProp .
+        # Optionally map subject individual via owl:sameAs
+        OPTIONAL { ?subject owl:sameAs ?mappedSubject }
+        BIND(COALESCE(?mappedSubject, ?subject) AS ?targetSubject)
+        # Optionally map object individual via owl:sameAs
+        OPTIONAL { ?object owl:sameAs ?mappedObject }
+        BIND(COALESCE(?mappedObject, ?object) AS ?targetObject)
+      };
+
+      # Map classes: delete IES4 class triple, insert IES Next class triple
+      DELETE {
+        ?subject a ?sourceClass .
+      }
+      INSERT {
+        ?targetSubject a ?targetClass .
+      }
+      WHERE {
+        ?subject a ?sourceClass .
+        ?sourceClass owl:equivalentClass ?targetClass .
+        # Optionally map subject individual via owl:sameAs
+        OPTIONAL { ?subject owl:sameAs ?mappedSubject }
+        BIND(COALESCE(?mappedSubject, ?subject) AS ?targetSubject)
+      }
+
+  - name: "crossing_mapping"
+    description: "Complex mapping for ies:Crossing"
+    enabled: true
+    order: 1
+    query: |
+      # Delete IES4 crossing pattern, insert IES Next pattern
+      DELETE {
+        ?crossing a ies:Crossing .
+        ?crossing ies:crossingOf ?crossed_locations .
+      }
+      INSERT {
+        ?crossing a ies_top:SpatiotemporalExtent .
+        ?crossing ies_top:intersectionOf ?set_of_overlapping_extents .
+        ?crossed_locations a ?set_of_overlapping_extents .
+        ?set_of_overlapping_extents a ies_top:SetOfOverlappingSpatiotemporalExtents .
+      }
+      WHERE {
+        ?crossing a ies:Crossing .
+        ?crossing ies:crossingOf ?crossed_locations .
+
+        BIND(
+          IRI(CONCAT(STR(?crossing), "_set_of_overlapping_extents"))
+          AS ?set_of_overlapping_extents
+        )
+      }
+
+  - name: "duration_mapping"
+    description: "Complex mapping for ies:Duration"
+    enabled: true
+    order: 2
+    query: |
+      # Delete IES4 duration pattern, insert IES Next pattern with ISO8601 duration
+      DELETE {
+        ?element ies:hasCharacteristic ?element_duration .
+        ?element_duration a ies:Duration .
+        ?element_duration ies:hasValue ?duration_value .
+        ?duration_value a ies:ValueInSeconds .
+        ?duration_value ies:representationValue ?seconds_literal .
+      }
+      INSERT {
+        ?element ies_core:duration ?element_duration .
+        ?element_duration a ies_core:SetOfStatesWithParticularDuration .
+        ?element_duration ies_core:iso8601DurationRepresentation ?duration_literal .
+      }
+      WHERE {
+        ?element ies:hasCharacteristic ?element_duration .
+        ?element_duration a ies:Duration .
+        ?element_duration ies:hasValue ?duration_value .
+        ?duration_value a ies:ValueInSeconds .
+        ?duration_value ies:representationValue ?seconds_literal .
+
+        # Accept "3601"^^xsd:string, "3601", 3601, 3601.0, etc.
+        BIND(xsd:integer(?seconds_literal) AS ?sec0)
+
+        # Guard against negatives
+        BIND(IF(?sec0 < 0, -?sec0, ?sec0) AS ?sec)
+
+        BIND(FLOOR(?sec / 86400) AS ?days)
+        BIND(?sec - (?days * 86400) AS ?rem1)
+
+        BIND(FLOOR(?rem1 / 3600) AS ?hours)
+        BIND(?rem1 - (?hours * 3600) AS ?rem2)
+
+        BIND(FLOOR(?rem2 / 60) AS ?mins)
+        BIND(?rem2 - (?mins * 60) AS ?secs)
+
+        # Build ISO8601 duration lexical form
+        BIND(CONCAT(
+              "P", STR(?days), "DT",
+              STR(?hours), "H",
+              STR(?mins),  "M",
+              STR(?secs),  "S"
+            ) AS ?durLex)
+
+        # Cast to xsd:duration using STRDT
+        BIND(STRDT(?durLex, xsd:duration) AS ?duration_literal)
+      }
+
+  - name: "recurring_period_mapping"
+    description: "Complex mapping for ies:RecurringPeriod"
+    enabled: true
+    order: 3
+    query: |
+      DELETE {
+        ?recurring_period a ies:RecurringPeriod .
+        ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
+      }
+      INSERT {
+        ?crossing a ies_top:SpatiotemporalExtent .
+        ?crossing ies_top:intersectionOf ?set_of_overlapping_extents .
+        ?crossed_locations a ?set_of_overlapping_extents .
+        ?set_of_overlapping_extents a ies_top:SetOfOverlappingSpatiotemporalExtents .
+      }
+      WHERE {
+        ?measure a ies:Crossing .
+        ?crossing ies:crossingOf ?crossed_locations .
+
+        BIND(
+          IRI(CONCAT(STR(?crossing), "_set_of_overlapping_extents"))
+          AS ?set_of_overlapping_extents
+        )
+      }

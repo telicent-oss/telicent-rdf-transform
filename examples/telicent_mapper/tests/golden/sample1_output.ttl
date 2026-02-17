@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Organization1 a ex:TransformedOrganization ;
+    ex:orgName "Acme Corp" .
+
+ex:Person1 a ex:TransformedPerson ;
+    ex:hasAge 30 ;
+    ex:hasName "Alice Smith" .
+
+ex:Person2 a ex:TransformedPerson ;
+    ex:hasAge 25 ;
+    ex:hasName "Bob Jones" .
+

@@ -1,0 +1,41 @@
+@prefix ies_core: <http://purl.org/ies/core/v0/ont/> .
+@prefix ies_top: <http://purl.org/ies/top/v0/ont/> .
+@prefix tont: <http://telicent.io/ontology/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://iso.org/iso3166/country#AUS> a ies_core:Country ;
+    ies_core:hasName <http://iso.org/iso3166/country#AUS_name> ;
+    ies_core:isIdentifiedBy <http://iso.org/iso3166/country#AUS_iso_a3> ;
+    ies_top:isPartOf <http://un.org/region#053> ;
+    tont:primaryName "Australia"^^xsd:string .
+
+<http://iso.org/iso3166/country#GBR> a ies_core:Country ;
+    ies_core:hasName <http://iso.org/iso3166/country#GBR_name> ;
+    ies_core:isIdentifiedBy <http://iso.org/iso3166/country#GBR_iso_a3> ;
+    ies_top:isPartOf <http://un.org/region#150> ;
+    tont:primaryName "United Kingdom of Great Britain and Northern Ireland"^^xsd:string .
+
+<http://iso.org/iso3166/country#USA> a ies_core:Country ;
+    ies_core:hasName <http://iso.org/iso3166/country#USA_name> ;
+    ies_core:isIdentifiedBy <http://iso.org/iso3166/country#USA_iso_a3> ;
+    ies_top:isPartOf <http://un.org/region#021> ;
+    tont:primaryName "United States of America"^^xsd:string .
+
+<http://iso.org/iso3166/country#AUS_iso_a3> a ies_core:ISO3166_1Alpha_3 ;
+    ies_core:representationValue "AUS"^^xsd:string .
+
+<http://iso.org/iso3166/country#AUS_name> a ies_core:Name ;
+    ies_core:representationValue "Australia"^^xsd:string .
+
+<http://iso.org/iso3166/country#GBR_iso_a3> a ies_core:ISO3166_1Alpha_3 ;
+    ies_core:representationValue "GBR"^^xsd:string .
+
+<http://iso.org/iso3166/country#GBR_name> a ies_core:Name ;
+    ies_core:representationValue "United Kingdom of Great Britain and Northern Ireland"^^xsd:string .
+
+<http://iso.org/iso3166/country#USA_iso_a3> a ies_core:ISO3166_1Alpha_3 ;
+    ies_core:representationValue "USA"^^xsd:string .
+
+<http://iso.org/iso3166/country#USA_name> a ies_core:Name ;
+    ies_core:representationValue "United States of America"^^xsd:string .
+

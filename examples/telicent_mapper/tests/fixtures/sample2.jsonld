@@ -1,0 +1,21 @@
+{
+  "@context": {
+    "ex": "http://example.org/",
+    "name": "ex:name",
+    "address": "ex:address"
+  },
+  "@graph": [
+    {
+      "@id": "ex:Location1",
+      "@type": "ex:Location",
+      "name": "London Office",
+      "address": "123 Main St, London"
+    },
+    {
+      "@id": "ex:Location2",
+      "@type": "ex:Location",
+      "name": "Paris Office",
+      "address": "456 Rue de la Paix, Paris"
+    }
+  ]
+}

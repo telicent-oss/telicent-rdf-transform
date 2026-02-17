@@ -1,0 +1,38 @@
+@prefix ies_core: <http://purl.org/ies/core/v0/ont/> .
+@prefix tont: <http://telicent.io/ontology/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://un.org/region#021> a ies_core:RegionOfEarth ;
+    ies_core:hasName <http://un.org/region#021_name> ;
+    ies_core:isIdentifiedBy <http://un.org/region#021_un_id> .
+
+<http://un.org/region#053> a ies_core:RegionOfEarth ;
+    ies_core:hasName <http://un.org/region#053_name> ;
+    ies_core:isIdentifiedBy <http://un.org/region#053_un_id> .
+
+<http://un.org/region#154> a ies_core:RegionOfEarth ;
+    ies_core:hasName <http://un.org/region#154_name> ;
+    ies_core:isIdentifiedBy <http://un.org/region#154_un_id> ;
+    tont:primaryName "Northern Europe"^^xsd:string .
+
+<http://un.org/region#021_name> a ies_core:Name ;
+    ies_core:representationValue "Northern America"^^xsd:string .
+
+<http://un.org/region#021_un_id> a ies_core:Identifier ;
+    ies_core:inScheme <http://un.org/region-code> ;
+    ies_core:representationValue "021"^^xsd:string .
+
+<http://un.org/region#053_name> a ies_core:Name ;
+    ies_core:representationValue "Australia and New Zealand"^^xsd:string .
+
+<http://un.org/region#053_un_id> a ies_core:Identifier ;
+    ies_core:inScheme <http://un.org/region-code> ;
+    ies_core:representationValue "053"^^xsd:string .
+
+<http://un.org/region#154_name> a ies_core:Name ;
+    ies_core:representationValue "Northern Europe"^^xsd:string .
+
+<http://un.org/region#154_un_id> a ies_core:Identifier ;
+    ies_core:inScheme <http://un.org/region-code> ;
+    ies_core:representationValue "150"^^xsd:string .
+

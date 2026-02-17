@@ -1,0 +1,94 @@
+[project]
+name = "telicent-rdf-transform"
+version = "0.0.0"
+authors = [{name = "Telicent Ltd", email = "admin@telicent.io"}]
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv==1.*",
+    "telicent-lib==6.*",
+    "pyyaml==6.*",
+    "rdflib==7.*",
+    "telicent-label-builder==0.*"
+]
+classifiers = [
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3 :: Only',
+    'Topic :: Software Development',
+    'Typing :: Typed',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS',
+]
+
+[project.urls]
+repository = "https://github.com/telicent-oss/telicent-rdf-transform"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit==4.2.0",
+    "ruff==0.12.2",
+    "mypy==1.16.1",
+    "types-PyYAML==6.0.12.*",
+    "cyclonedx-bom==6.1.2",
+    # Add any dependencies specific to build/testing.
+    # This block does not get installed in any of the final Docker images.
+]
+telicent_mapper = []
+rdf_transform = []
+
+[tool.ruff]
+target-version = "py312"
+lint.select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP",  # pyupgrade
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "scripts/*",
+]
+line-length = 120
+
+[tool.mypy]
+no_implicit_optional = false
+ignore_missing_imports = true
+# List all python packages (any folder with an __init__.py) to ensure mypy checks all the code
+modules = ["examples.telicent_mapper", "rdf_transform"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+    "examples",
+]
+testpaths = [
+    "tests",
+    "examples",
+]
+
+[tool.setuptools]
+py-modules = []

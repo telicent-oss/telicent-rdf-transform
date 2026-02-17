@@ -1,0 +1,45 @@
+@prefix fips: <http://nist.gov/standardsgov/federal-information-processing-standards#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix iso3166c: <http://iso.org/iso3166/country#> .
+@prefix tont: <http://telicent.io/ontology/> .
+@prefix un: <http://un.org/region#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# United Kingdom
+iso3166c:GBR a ies:Country ;
+    ies:hasName iso3166c:GBR_name ;
+    ies:inLocation un:150 ;
+    ies:isIdentifiedBy iso3166c:GBR_iso_a3 ;
+    tont:primaryName "United Kingdom of Great Britain and Northern Ireland"^^xsd:string .
+
+iso3166c:GBR_name a ies:PlaceName ;
+    ies:representationValue "United Kingdom of Great Britain and Northern Ireland"^^xsd:string .
+
+iso3166c:GBR_iso_a3 a ies:ISO3166_1Alpha_3 ;
+    ies:representationValue "GBR"^^xsd:string .
+
+# United States of America
+iso3166c:USA a ies:Country ;
+    ies:hasName iso3166c:USA_name ;
+    ies:inLocation un:021 ;
+    ies:isIdentifiedBy iso3166c:USA_iso_a3 ;
+    tont:primaryName "United States of America"^^xsd:string .
+
+iso3166c:USA_name a ies:PlaceName ;
+    ies:representationValue "United States of America"^^xsd:string .
+
+iso3166c:USA_iso_a3 a ies:ISO3166_1Alpha_3 ;
+    ies:representationValue "USA"^^xsd:string .
+
+# Australia
+iso3166c:AUS a ies:Country ;
+    ies:hasName iso3166c:AUS_name ;
+    ies:inLocation un:053 ;
+    ies:isIdentifiedBy iso3166c:AUS_iso_a3;
+    tont:primaryName "Australia"^^xsd:string .
+
+iso3166c:AUS_name a ies:PlaceName ;
+    ies:representationValue "Australia"^^xsd:string .
+
+iso3166c:AUS_iso_a3 a ies:ISO3166_1Alpha_3 ;
+    ies:representationValue "AUS"^^xsd:string .

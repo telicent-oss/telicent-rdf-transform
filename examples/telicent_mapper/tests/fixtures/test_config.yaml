@@ -1,0 +1,35 @@
+namespaces:
+  ex: "http://example.org/"
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+
+queries:
+  - name: "extract_persons"
+    description: "Extract person information"
+    enabled: true
+    order: 1
+    query: |
+      CONSTRUCT {
+        ?person a ex:TransformedPerson ;
+                ex:hasName ?name ;
+                ex:hasAge ?age .
+      }
+      WHERE {
+        ?person a ex:Person ;
+                ex:name ?name ;
+                ex:age ?age .
+      }
+
+  - name: "extract_organizations"
+    description: "Extract organization information"
+    enabled: true
+    order: 2
+    query: |
+      CONSTRUCT {
+        ?org a ex:TransformedOrganization ;
+             ex:orgName ?name .
+      }
+      WHERE {
+        ?org a ex:Organization ;
+             ex:name ?name .
+      }

@@ -1,0 +1,16 @@
+@prefix tgt: <http://example.org/target#> .
+
+<http://example.org/data#jane> a tgt:Human ;
+    tgt:employedBy <http://example.org/data#globex> ;
+    tgt:name "Jane Doe" .
+
+<http://example.org/data#john> a tgt:Human ;
+    tgt:employedBy <http://example.org/data#acme> ;
+    tgt:name "John Smith" .
+
+<http://example.org/data#acme> a tgt:Organization ;
+    tgt:name "Acme Corporation" .
+
+<http://example.org/data#globex> a tgt:Organization ;
+    tgt:name "Globex Inc" .
+

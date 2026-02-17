@@ -1,0 +1,24 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:meeting_001 a ies:Meeting ;
+    ies:hasCharacteristic data:meeting_001_duration .
+
+data:meeting_001_duration a ies:Duration ;
+    ies:hasValue data:meeting_001_duration_value_in_seconds .
+
+data:meeting_001_duration_value_in_seconds a ies:ValueInSeconds ;
+    ies:representationValue "9000" .
+
+# below triples is to test that query doesn't affect other hasCharacteristics
+# TO DO WHEN QUDT MAPPING ADDED
+# data:person_001 a ies:Person ;
+#     ies:hasCharacteristic data:person_001_height .
+
+# data:person_001_duration a ies:Height ;
+#     ies:hasValue data:person_001_height_value_in_metres .
+
+# data:person_001_height_value_in_seconds a ies:ValueInMetres ;
+#     ies:representationValue "1.6" .
