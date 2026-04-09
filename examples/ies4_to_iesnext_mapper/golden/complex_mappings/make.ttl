@@ -8,7 +8,7 @@
 
 data:car_1 a ies_core:Vehicle .
 
-data:organisation_1 a ies_core:Organisation .
+data:organisation_1 a ies_core:Organization .
 
 data:car_1_create_event a ies_core:Create .
 

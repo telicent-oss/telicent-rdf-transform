@@ -192,13 +192,13 @@ queries:
         # Created 
         ?created rdf:type ies_core:Created .
         ?created ies_core:isTemporalPartOf ?asset .
-        ?created   ies_core:isPartOf         ?created .
+        ?created ies_core:isPartOf         ?create_event .
       }
       WHERE {
         ?asset ies:make ?org .
 
         # Generate deterministic URIs for new nodes
-        BIND(IRI(CONCAT(STR(?asset), "_", STR(?org), "_create_event"))      AS ?create_event)
-        BIND(IRI(CONCAT(STR(?asset), "_", STR(?org), "_creator"))     AS ?creator)
-        BIND(IRI(CONCAT(STR(?asset), "_", STR(?org), "_created"))     AS ?created)
+        BIND(IRI(CONCAT(STR(?asset), "_create_event")) AS ?create_event)
+        BIND(IRI(CONCAT(STR(?asset), "_creator"))      AS ?creator)
+        BIND(IRI(CONCAT(STR(?asset), "_created"))      AS ?created)
       }
