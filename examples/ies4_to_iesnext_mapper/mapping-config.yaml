@@ -171,3 +171,34 @@ queries:
           AS ?set_of_overlapping_extents
         )
       }
+
+  - name: "make_to_create_pattern_mapping"
+    description: "Replace ies:make property with ies_core:Create pattern"
+    enabled: true
+    order: 4
+    query: |
+      DELETE {
+        ?asset ies:make ?org .
+      }
+      INSERT {
+        # Create
+        ?create_event rdf:type ies_core:Create .
+
+        # Creator 
+        ?creator rdf:type ies_core:Creator .
+        ?creator ies_top:isPartOf ?create_event .
+        ?creator ies_top:isTemporalPartOf  ?org .
+
+        # Created 
+        ?created rdf:type ies_core:Created .
+        ?created ies_top:isAStartOf ?asset .
+        ?created ies_top:isPartOf         ?create_event .
+      }
+      WHERE {
+        ?asset ies:make ?org .
+
+        # Generate deterministic URIs for new nodes
+        BIND(IRI(CONCAT(STR(?asset), "_create_event")) AS ?create_event)
+        BIND(IRI(CONCAT(STR(?asset), "_creator"))      AS ?creator)
+        BIND(IRI(CONCAT(STR(?asset), "_created"))      AS ?created)
+      }
