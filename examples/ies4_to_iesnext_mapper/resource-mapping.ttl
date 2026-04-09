@@ -707,7 +707,6 @@ ies:ilrProficiency owl:equivalentClass ies_social:ILRLevel5 .
 ies:inPossessionOf owl:equivalentClass ies_core:Possession .
 ies:issuerIdentificationNumber owl:equivalentClass ies_fincom:IssuerIdentificationNumber .
 ies:jurisdictionOfRights owl:equivalentClass ies_core:Recognizer .
-ies:make owl:equivalentClass ies_core:Create .
 ies:natureOfInterest owl:equivalentClass ies_social:AcademicInterest .
 ies:natureOfInterest owl:equivalentClass ies_social:PersonalInterest .
 ies:natureOfInterest owl:equivalentClass ies_social:ProfessionalInterest .

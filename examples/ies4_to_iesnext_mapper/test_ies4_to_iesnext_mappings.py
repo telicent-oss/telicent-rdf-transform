@@ -74,6 +74,9 @@ class TestIES4ToIESNextMappings(unittest.TestCase):
     def test_duration_mapping(self):
         self._test_complex_mapping("duration.ttl", "duration.ttl")
 
+    def test_make_mapping(self):
+        self._test_complex_mapping("make.ttl", "make.ttl")
+
 
 if __name__ == "__main__":
     unittest.main()
