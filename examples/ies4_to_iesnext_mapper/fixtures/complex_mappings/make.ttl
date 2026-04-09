@@ -1,0 +1,13 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:car_1 a ies:Vehicle .
+
+data:organisation_1 a ies:Organisation .
+
+data:car_1 ies:make data:organisation_1 .
+
+
+   
