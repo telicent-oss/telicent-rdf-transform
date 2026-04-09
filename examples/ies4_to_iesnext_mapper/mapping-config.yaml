@@ -173,7 +173,7 @@ queries:
       }
 
   - name: "make_to_create_pattern_mapping"
-    description: "Replace ies:make property into ies_core:Create pattern"
+    description: "Replace ies:make property with ies_core:Create pattern"
     enabled: true
     order: 4
     query: |
