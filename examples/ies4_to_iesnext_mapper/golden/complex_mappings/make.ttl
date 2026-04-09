@@ -13,9 +13,9 @@ data:organisation_1 a ies_core:Organization .
 data:car_1_create_event a ies_core:Create .
 
 data:car_1_created a ies_core:Created ;
-    ies_core:isTemporalPartOf data:car_1 ;
-    ies_core:isPartOf data:car_1_create_event .
+    ies_top:isAStartOf data:car_1 ;
+    ies_top:isPartOf data:car_1_create_event .
 
 data:car_1_creator a ies_core:Creator ;
-    ies_core:isPartOf data:car_1_create_event ;
-    ies_core:isTemporalPartOf data:organisation_1 .
+    ies_top:isPartOf data:car_1_create_event ;
+    ies_top:isTemporalPartOf data:organisation_1 .

@@ -186,13 +186,13 @@ queries:
 
         # Creator 
         ?creator rdf:type ies_core:Creator .
-        ?creator ies_core:isPartOf ?create_event .
-        ?creator ies_core:isTemporalPartOf  ?org .
+        ?creator ies_top:isPartOf ?create_event .
+        ?creator ies_top:isTemporalPartOf  ?org .
 
         # Created 
         ?created rdf:type ies_core:Created .
-        ?created ies_core:isTemporalPartOf ?asset .
-        ?created ies_core:isPartOf         ?create_event .
+        ?created ies_top:isAStartOf ?asset .
+        ?created ies_top:isPartOf         ?create_event .
       }
       WHERE {
         ?asset ies:make ?org .
