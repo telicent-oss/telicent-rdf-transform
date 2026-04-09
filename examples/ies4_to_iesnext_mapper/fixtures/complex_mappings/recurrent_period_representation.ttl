@@ -1,0 +1,22 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:meeting_001 a ies:Meeting ;
+    ies:inPeriod data:daily_at_8 .
+
+data:daily_at_8 a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T08:00:00"^^xsd:string .
+
+data:christmas_day a ies:Event ;
+    ies:inPeriod data:once_a_year .
+
+data:once_a_year a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-12-25"^^xsd:string .
+
+data:payday a ies:Event ;
+    ies:inPeriod data:once_a_month .
+
+data:once_a_month a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-28"^^xsd:string .
