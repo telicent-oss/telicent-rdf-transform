@@ -77,6 +77,10 @@ class TestIES4ToIESNextMappings(unittest.TestCase):
     def test_make_mapping(self):
         self._test_complex_mapping("make.ttl", "make.ttl")
 
+    def test_recurrent_period_representation_mapping(self):
+        self._test_complex_mapping("recurrent_period_representation.ttl",
+                                   "recurrent_period_representation.ttl")
+
 
 if __name__ == "__main__":
     unittest.main()
