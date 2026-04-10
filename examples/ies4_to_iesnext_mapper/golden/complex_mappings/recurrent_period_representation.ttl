@@ -21,7 +21,7 @@ data:daily_at_8 a ies_core:RecurringTimespan ;
     ies_core:hasICalRepresentation  data:daily_at_8_representation .
 
 data:daily_at_8_representation a ies_core:ICalRepresentation ;
-    ical:rrule "FREQ=DAILY;BYHOUR=8;BYMINUTE=0"^^xsd:string ;
+    ical:rrule "DSTART:20260401T0800;FREQ=DAILY;BYHOUR=8;BYMINUTE=0"^^xsd:string ;
     ical:dtstart "2026-04-01T08:00"^^xsd:string .
 
 # an event that occurs once a year with no start or end
@@ -64,6 +64,6 @@ data:once_a_month_002 a ies_core:RecurringTimespan ;
     ies_core:hasICalRepresentation  data:once_a_month_002_representation .
 
 data:once_a_month_002_representation a ies_core:ICalRepresentation ;
-    ical:rrule "FREQ=MONTHLY;BYMONTHDAY=1;UNTIL=20271201"^^xsd:string ;
+    ical:rrule "DSTART:20260101;FREQ=MONTHLY;BYMONTHDAY=1;UNTIL=20271201"^^xsd:string ;
     ical:dtstart "2026-01-01"^^xsd:string ;
     ical:dtend "2027-12-01"^^xsd:string .
