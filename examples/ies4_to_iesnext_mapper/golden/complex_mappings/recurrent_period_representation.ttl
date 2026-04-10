@@ -14,7 +14,7 @@ data:meeting_001 a ies_core:Meeting ;
     ies_top:isPartOf data:daily_at_8 .
 
 iso8601:20260401T0800 a ies_core:ParticularPeriod ;
-    ies_core:isAStartOf data:daily_at_8 ;
+    ies_top:isAStartOf data:daily_at_8 ;
     ies_core:iso8601PeriodRepresentation "2026-04-01T08:00"^^xsd:string .
 
 data:daily_at_8 a ies_core:RecurringTimespan ;
@@ -38,7 +38,7 @@ data:payday_001 a ies_core:Activity ;
     ies_top:isPartOf data:once_a_month_001 .
 
 iso8601:20270101 a ies_core:ParticularPeriod ;
-    ies_core:isAFinishOf data:once_a_month_001 ;
+    ies_top:isAFinishOf data:once_a_month_001 ;
     ies_core:iso8601PeriodRepresentation "2027-01-01"^^xsd:string .
 
 data:once_a_month_001 a ies_core:RecurringTimespan ;
@@ -49,15 +49,15 @@ data:once_a_month_001_representation a ies_core:ICalRepresentation ;
      ical:dtend "2027-01-01"^^xsd:string .
 
 # an event that occurs once a month with start and end
-data:monthly_meeting_001 a ies_core:Activity ;
+data:monthly_meeting_001 a ies_core:Meeting ;
     ies_top:isPartOf data:once_a_month_002 .
 
 iso8601:20260101 a ies_core:ParticularPeriod ;
-    ies_core:isAStartOf data:once_a_month_002 ;
+    ies_top:isAStartOf data:once_a_month_002 ;
     ies_core:iso8601PeriodRepresentation "2026-01-01"^^xsd:string .
 
 iso8601:20271201 a ies_core:ParticularPeriod ;
-    ies_core:isAFinishOf data:once_a_month_002 ;
+    ies_top:isAFinishOf data:once_a_month_002 ;
     ies_core:iso8601PeriodRepresentation "2027-12-01"^^xsd:string .
 
 data:once_a_month_002 a ies_core:RecurringTimespan ;

@@ -162,43 +162,49 @@ queries:
         ?recurring_period ies_core:hasICalRepresentation ?ical_representation .
         ?ical_representation a ies_core:ICalRepresentation .
         ?ical_representation ical:rrule ?rrule .
+        ?ical_representation ical:dtstart ?start_literal .
+        ?ical_representation ical:dtend ?end_literal .
       }
       WHERE {
         ?recurring_period a ies:RecurringPeriod .
-        ?recurring_period ies:recurrentPeriodRepresentation ?literal .
+        ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
 
-        # Optionally get end ParticularPeriod literal for UNTIL
+        # Optionally get start ParticularPeriod literal for dtstart
+        OPTIONAL {
+          ?start_period ies:isStartOf ?recurring_period .
+          ?start_period ies:iso8601PeriodRepresentation ?start_literal .
+        }
+
+        # Optionally get end ParticularPeriod literal for dtend/UNTIL
         OPTIONAL {
           ?end_period ies:isEndOf ?recurring_period .
           ?end_period ies:iso8601PeriodRepresentation ?end_literal .
-          # Strip hyphens for UNTIL format e.g. 2027-01-01 -> 20270101
           BIND(REPLACE(STR(?end_literal), "-", "") AS ?until_val)
         }
 
         # Detect pattern type by regex on the ?? literal
         # Daily: ????-??-??T{HH}:{MM}
-        BIND(REGEX(STR(?literal), "^\\?\\?\\?\\?-\\?\\?-\\?\\?T(\\d{2}):(\\d{2})") AS ?is_daily)
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-\\?\\?T(\\d{2}):(\\d{2})") AS ?is_daily)
         # Yearly: ????-{MM}-{DD}
-        BIND(REGEX(STR(?literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$") AS ?is_yearly)
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$") AS ?is_yearly)
         # Monthly: ????-??-{DD}
-        BIND(REGEX(STR(?literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$") AS ?is_monthly)
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$") AS ?is_monthly)
 
-        # Extract components
         # Daily: extract hour and minute from T{HH}:{MM}
-        BIND(IF(?is_daily, REPLACE(STR(?literal), "^.*T(\\d{2}):(\\d{2})$", "$1"), "") AS ?raw_hour)
-        BIND(IF(?is_daily, REPLACE(STR(?literal), "^.*T(\\d{2}):(\\d{2})$", "$2"), "") AS ?raw_minute)
+        BIND(IF(?is_daily, REPLACE(STR(?recurrent_literal), "^.*T(\\d{2}):(\\d{2})$", "$1"), "") AS ?raw_hour)
+        BIND(IF(?is_daily, REPLACE(STR(?recurrent_literal), "^.*T(\\d{2}):(\\d{2})$", "$2"), "") AS ?raw_minute)
         # Strip leading zeros for iCal (08 -> 8)
         BIND(IF(?is_daily, STR(xsd:integer(?raw_hour)),   "") AS ?hour)
         BIND(IF(?is_daily, STR(xsd:integer(?raw_minute)), "") AS ?minute)
 
         # Yearly: extract month and day
-        BIND(IF(?is_yearly, REPLACE(STR(?literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$1"), "") AS ?raw_month)
-        BIND(IF(?is_yearly, REPLACE(STR(?literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$2"), "") AS ?raw_day)
+        BIND(IF(?is_yearly, REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$1"), "") AS ?raw_month)
+        BIND(IF(?is_yearly, REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$2"), "") AS ?raw_day)
         BIND(IF(?is_yearly, STR(xsd:integer(?raw_month)), "") AS ?month)
         BIND(IF(?is_yearly, STR(xsd:integer(?raw_day)),   "") AS ?day)
 
         # Monthly: extract day
-        BIND(IF(?is_monthly, REPLACE(STR(?literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$", "$1"), "") AS ?raw_month_day)
+        BIND(IF(?is_monthly, REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$", "$1"), "") AS ?raw_month_day)
         BIND(IF(?is_monthly, STR(xsd:integer(?raw_month_day)), "") AS ?month_day)
 
         # Build UNTIL suffix if end period exists
@@ -212,7 +218,7 @@ queries:
             CONCAT("FREQ=YEARLY;BYMONTH=", ?month, ";BYMONTHDAY=", ?day, ?until_suffix),
           IF(?is_monthly,
             CONCAT("FREQ=MONTHLY;BYMONTHDAY=", ?month_day, ?until_suffix),
-            ?literal
+            ?recurrent_literal
           )))
           AS ?rrule_str
         )
