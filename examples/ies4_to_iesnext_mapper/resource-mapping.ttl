@@ -151,7 +151,6 @@ ies:quantityDelivered owl:equivalentProperty ies_core:finiteMembershipCount .
 ies:quantityOffered owl:equivalentProperty ies_core:finiteMembershipCount .
 ies:quantityPurchased owl:equivalentProperty ies_core:finiteMembershipCount .
 ies:radioCoverage owl:equivalentProperty ies_cycom:radioCoverage .
-# ies:recurrentPeriodRepresentation owl:equivalentProperty ies_core:hasICalRepresentation .
 ies:relationship owl:equivalentProperty ies_top:couple .
 ies:representationValue owl:equivalentProperty ies_core:representationValue .
 ies:residesIn owl:equivalentProperty ies_social:residesIn .
@@ -543,7 +542,6 @@ ies:RealEstate owl:equivalentClass ies_core:RealEstate .
 ies:ReceivingAccount owl:equivalentClass ies_fincom:CurrencyReceived .
 ies:Recipient owl:equivalentClass ies_cycom:Recipient .
 ies:Reconnaisance owl:equivalentClass ies_sec:Reconnaisance .
-# ies:RecurringPeriod owl:equivalentClass ies_core:RecurringTimespan .
 ies:ReferenceNumber owl:equivalentClass ies_admin:ReferenceNumber .
 ies:RegionOfCountry owl:equivalentClass ies_core:RegionOfCountry .
 ies:RegionOfWorld owl:equivalentClass ies_core:RegionOfEarth .
