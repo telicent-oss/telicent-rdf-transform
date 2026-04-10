@@ -1,0 +1,51 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix iso8601: <http://iso.org/iso8601#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+# an event that occurs daily at 8am with start no end
+data:meeting_001 a ies:Meeting ;
+    ies:inPeriod data:daily_at_8 .
+
+iso8601:20260401T0800 a ies:ParticularPeriod ;
+    ies:isStartOf data:daily_at_8 ;
+    ies:iso8601PeriodRepresentation "2026-04-01T08:00"^^xsd:string .
+
+data:daily_at_8 a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T08:00"^^xsd:string .
+
+# an event that occurs once a year with no start or end
+data:christmas_day a ies:Event ;
+    ies:inPeriod data:once_a_year .
+
+data:once_a_year a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-12-25"^^xsd:string .
+
+# an event that occurs once a month with unknown start and known end
+data:payday_001 a ies:Event ;
+    ies:inPeriod data:once_a_month_001 .
+
+iso8601:20270101 a ies:ParticularPeriod ;
+    ies:isEndOf data:once_a_month_001 ;
+    ies:iso8601PeriodRepresentation "2027-01-01"^^xsd:string .
+
+data:once_a_month_001 a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-28"^^xsd:string .
+
+# an event that occurs once a month with start and end
+data:monthly_meeting_001 a ies:Meeting ;
+    ies:inPeriod data:once_a_month_002 .
+
+iso8601:20260101 a ies:ParticularPeriod ;
+    ies:isStartOf data:once_a_month_002 ;
+    ies:iso8601PeriodRepresentation "2026-01-01"^^xsd:string .
+
+iso8601:20271201 a ies:ParticularPeriod ;
+    ies:isEndOf data:once_a_month_002 ;
+    ies:iso8601PeriodRepresentation "2027-12-01"^^xsd:string .
+
+data:once_a_month_002 a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-01"^^xsd:string .

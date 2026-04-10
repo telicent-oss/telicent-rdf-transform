@@ -19,6 +19,7 @@ namespaces:
   rdfs: "http://www.w3.org/2000/01/rdf-schema#"
   xsd: "http://www.w3.org/2001/XMLSchema#"
   owl: "http://www.w3.org/2002/07/owl#"
+  ical: "http://www.w3.org/2002/12/cal/ical#"
 
 # Optional: RDF mapping file configuration
 # Path to RDF file with owl:equivalentProperty/Class mappings
@@ -157,20 +158,99 @@ queries:
         ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
       }
       INSERT {
-        ?crossing a ies_top:SpatiotemporalExtent .
-        ?crossing ies_top:intersectionOf ?set_of_overlapping_extents .
-        ?crossed_locations a ?set_of_overlapping_extents .
-        ?set_of_overlapping_extents a ies_top:SetOfOverlappingSpatiotemporalExtents .
+        ?recurring_period a ies_core:RecurringTimespan .
+        ?recurring_period ies_core:hasICalRepresentation ?ical_representation .
+        ?ical_representation a ies_core:ICalRepresentation .
+        ?ical_representation ical:rrule ?rrule .
+        ?ical_representation ical:dtstart ?start_literal .
+        ?ical_representation ical:dtend ?end_literal .
       }
       WHERE {
-        ?measure a ies:Crossing .
-        ?crossing ies:crossingOf ?crossed_locations .
+        ?recurring_period a ies:RecurringPeriod .
+        ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
 
+        # Optionally get start ParticularPeriod literal for dtstart/DSTART
+        OPTIONAL {
+          ?start_period ies:isStartOf ?recurring_period .
+          ?start_period ies:iso8601PeriodRepresentation ?start_literal .
+          BIND(REPLACE(STR(?start_literal), "[-:]", "") AS ?dstart_val)
+        }
+
+        # Optionally get end ParticularPeriod literal for dtend/UNTIL
+        OPTIONAL {
+          ?end_period ies:isEndOf ?recurring_period .
+          ?end_period ies:iso8601PeriodRepresentation ?end_literal .
+          BIND(REPLACE(STR(?end_literal), "[-:]", "") AS ?until_val)
+        }
+
+        # Detect pattern type by regex on the ?? literal
+        # Daily: ????-??-??T{HH} or ????-??-??T{HH}:{MM} or ????-??-??T{HH}:{MM}:{SS}
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-\\?\\?T\\d{2}") AS ?is_daily)
+        # Yearly: ????-{MM}-{DD}
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$") AS ?is_yearly)
+        # Monthly: ????-??-{DD}
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$") AS ?is_monthly)
+
+        # Daily: extract hour (required), minute (optional), second (optional)
+        BIND(IF(?is_daily,
+          REPLACE(STR(?recurrent_literal), "^.*T(\\d{2}).*$", "$1"),
+          "") AS ?raw_hour)
+        BIND(IF(?is_daily && REGEX(STR(?recurrent_literal), "T\\d{2}:\\d{2}"),
+          REPLACE(STR(?recurrent_literal), "^.*T\\d{2}:(\\d{2}).*$", "$1"),
+          "") AS ?raw_minute)
+        BIND(IF(?is_daily && REGEX(STR(?recurrent_literal), "T\\d{2}:\\d{2}:\\d{2}"),
+          REPLACE(STR(?recurrent_literal), "^.*T\\d{2}:\\d{2}:(\\d{2})$", "$1"),
+          "") AS ?raw_second)
+
+        # Strip leading zeros for iCal
+        BIND(IF(?is_daily, STR(xsd:integer(?raw_hour)), "") AS ?hour)
+        BIND(IF(BOUND(?raw_minute) && ?raw_minute != "",
+          CONCAT(";BYMINUTE=", STR(xsd:integer(?raw_minute))), "") AS ?minute_part)
+        BIND(IF(BOUND(?raw_second) && ?raw_second != "",
+          CONCAT(";BYSECOND=", STR(xsd:integer(?raw_second))), "") AS ?second_part)
+
+        # Yearly: extract month and day
+        BIND(IF(?is_yearly,
+          REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$1"),
+          "") AS ?raw_month)
+        BIND(IF(?is_yearly,
+          REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$2"),
+          "") AS ?raw_day)
+        BIND(IF(?is_yearly, STR(xsd:integer(?raw_month)), "") AS ?month)
+        BIND(IF(?is_yearly, STR(xsd:integer(?raw_day)),   "") AS ?day)
+
+        # Monthly: extract day
+        BIND(IF(?is_monthly,
+          REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$", "$1"),
+          "") AS ?raw_month_day)
+        BIND(IF(?is_monthly, STR(xsd:integer(?raw_month_day)), "") AS ?month_day)
+
+        # Build DSTART prefix if start period exists
+        BIND(IF(BOUND(?dstart_val),
+          CONCAT("DSTART:", ?dstart_val, ";"),
+          "") AS ?dstart_prefix)
+
+        # Build UNTIL suffix if end period exists
+        BIND(IF(BOUND(?until_val),
+          CONCAT(";UNTIL=", ?until_val),
+          "") AS ?until_suffix)
+
+        # Assemble RRULE string
         BIND(
-          IRI(CONCAT(STR(?crossing), "_set_of_overlapping_extents"))
-          AS ?set_of_overlapping_extents
+          IF(?is_daily,
+            CONCAT(?dstart_prefix, "FREQ=DAILY;BYHOUR=", ?hour, ?minute_part, ?second_part, ?until_suffix),
+          IF(?is_yearly,
+            CONCAT(?dstart_prefix, "FREQ=YEARLY;BYMONTH=", ?month, ";BYMONTHDAY=", ?day, ?until_suffix),
+          IF(?is_monthly,
+            CONCAT(?dstart_prefix, "FREQ=MONTHLY;BYMONTHDAY=", ?month_day, ?until_suffix),
+            ?recurrent_literal
+          )))
+          AS ?rrule_str
         )
+        BIND(STRDT(?rrule_str, xsd:string) AS ?rrule)
+        BIND(IRI(CONCAT(STR(?recurring_period), "_representation")) AS ?ical_representation)
       }
+  
 
   - name: "make_to_create_pattern_mapping"
     description: "Replace ies:make property with ies_core:Create pattern"
@@ -202,3 +282,4 @@ queries:
         BIND(IRI(CONCAT(STR(?asset), "_creator"))      AS ?creator)
         BIND(IRI(CONCAT(STR(?asset), "_created"))      AS ?created)
       }
+ 
