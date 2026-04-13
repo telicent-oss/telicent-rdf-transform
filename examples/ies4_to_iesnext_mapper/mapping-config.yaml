@@ -211,26 +211,28 @@ queries:
     query: |
       DELETE {
         ?responsible_actor_state ies:owns ?asset .
-      }
+        ?responsible_actor_state a ies:PersonState .
+        ?responsible_actor_state ies:isStateOf ?person .     
+        }
       INSERT {
         # Legal Ownership
         ?ownership_event rdf:type ies_core:LegalOwnership .
 
-        # Legal Owner 
+        # Legal Owner
         ?legal_owner rdf:type ies_core:LegalOwner .
         ?legal_owner ies_top:isPartOf ?ownership_event .
-        ?legal_owner ies_top:isTemporalPartOf  ?responsible_actor_state .
+        ?legal_owner ies_top:isTemporalPartOf ?person .
 
-        # Legally Owned 
+        # Legally Owned
         ?legally_owned rdf:type ies_core:LegallyOwned .
         ?legally_owned ies_top:isTemporalPartOf ?asset .
-        ?legally_owned ies_top:isPartOf         ?ownership_event .
+        ?legally_owned ies_top:isPartOf ?ownership_event .
       }
       WHERE {
         ?responsible_actor_state ies:owns ?asset .
+        ?responsible_actor_state ies:isStateOf ?person .
 
-        # Generate deterministic URIs for new nodes
         BIND(IRI(CONCAT(STR(?asset), "_ownership_activity")) AS ?ownership_event)
-        BIND(IRI(CONCAT(STR(?asset), "_legal_owner"))      AS ?legal_owner)
+        BIND(IRI(CONCAT(STR(?asset), "_legal_owner"))        AS ?legal_owner)
         BIND(IRI(CONCAT(STR(?asset), "_legally_owned"))      AS ?legally_owned)
       }

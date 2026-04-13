@@ -8,7 +8,7 @@
 
 data:house_001 a ies_core:RealEstate .
 
-data:owner_of_house_001 a ies_top:State .
+data:person_001 a ies_core:Person .
 
 
 data:house_001_ownership_activity a ies_core:LegalOwnership .
@@ -19,7 +19,7 @@ data:house_001_legally_owned a ies_core:LegallyOwned ;
 
 data:house_001_legal_owner a ies_core:LegalOwner ;
     ies_top:isPartOf data:house_001_ownership_activity ;
-    ies_top:isTemporalPartOf data:owner_of_house_001 .
+    ies_top:isTemporalPartOf data:person_001 .
 
 
 

@@ -4,10 +4,13 @@
 @prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
 
 data:house_001 a ies:RealEstate .
+data:person_001 a ies:Person .
 
-data:owner_of_house_001 a ies:PersonState .
+data:owner_of_house_001 a ies:PersonState ;
+    ies:isStateOf data:person_001 ;
+    ies:owns data:house_001 .
 
-data:owner_of_house_001 ies:owns data:house_001 .
+
 
 
    
