@@ -1,0 +1,13 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:house_001 a ies:RealEstate .
+
+data:owner_of_a_house_001 a ies:PersonState .
+
+data:owner_of_house_001 ies:owns data:house_001 .
+
+
+   
