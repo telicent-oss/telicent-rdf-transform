@@ -5,7 +5,7 @@
 
 data:house_001 a ies:RealEstate .
 
-data:owner_of_a_house_001 a ies:PersonState .
+data:owner_of_house_001 a ies:PersonState .
 
 data:owner_of_house_001 ies:owns data:house_001 .
 

@@ -77,6 +77,9 @@ class TestIES4ToIESNextMappings(unittest.TestCase):
     def test_make_mapping(self):
         self._test_complex_mapping("make.ttl", "make.ttl")
 
+    def test_owns_mapping(self):
+        self._test_complex_mapping("ownership.ttl", "ownership.ttl")
+
 
 if __name__ == "__main__":
     unittest.main()
