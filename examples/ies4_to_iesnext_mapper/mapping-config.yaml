@@ -156,6 +156,8 @@ queries:
       DELETE {
         ?recurring_period a ies:RecurringPeriod .
         ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
+        ?recurring_period ies:startsIn ?start_period .
+        ?recurring_period ies:endsIn ?end_period .
       }
       INSERT {
         ?recurring_period a ies_core:RecurringTimespan .
@@ -164,21 +166,23 @@ queries:
         ?ical_representation ical:rrule ?rrule .
         ?ical_representation ical:dtstart ?start_literal .
         ?ical_representation ical:dtend ?end_literal .
+        ?start_period ies_top:isAStartOf ?recurring_period .
+        ?end_period ies_top:isAFinishOf ?recurring_period .
       }
       WHERE {
         ?recurring_period a ies:RecurringPeriod .
         ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
 
-        # Optionally get start ParticularPeriod literal for dtstart/DSTART
+        # Optionally get start ParticularPeriod for dtstart/DSTART
         OPTIONAL {
-          ?start_period ies:isStartOf ?recurring_period .
+          ?recurring_period ies:startsIn ?start_period .
           ?start_period ies:iso8601PeriodRepresentation ?start_literal .
           BIND(REPLACE(STR(?start_literal), "[-:]", "") AS ?dstart_val)
         }
 
-        # Optionally get end ParticularPeriod literal for dtend/UNTIL
+        # Optionally get end ParticularPeriod for dtend/UNTIL
         OPTIONAL {
-          ?end_period ies:isEndOf ?recurring_period .
+          ?recurring_period ies:endsIn ?end_period .
           ?end_period ies:iso8601PeriodRepresentation ?end_literal .
           BIND(REPLACE(STR(?end_literal), "[-:]", "") AS ?until_val)
         }
