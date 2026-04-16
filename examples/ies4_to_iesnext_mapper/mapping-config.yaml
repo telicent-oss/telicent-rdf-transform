@@ -203,36 +203,164 @@ queries:
         BIND(IRI(CONCAT(STR(?asset), "_created"))      AS ?created)
       }
 
-
-  - name: "owns_to_legal_ownership_pattern_mapping"
-    description: "Replace ies:owns property with ies_core:LegalOwnership pattern"
+  - name: "owns_to_legal_ownership_pattern_mapping_deletable_states"
+    description: "Delete state (no extra triples beyond owns/isStateOf/inPeriod/inLocation/bounding states). Move inPeriod/inLocation directly to ownership_event, remap bounding states to ownership_event."
     enabled: true
     order: 5
     query: |
       DELETE {
-        ?responsible_actor_state ies:owns ?asset .
-        ?responsible_actor_state a ies:PersonState .
-        ?responsible_actor_state ies:isStateOf ?person .     
-        }
-      INSERT {
-        # Legal Ownership
-        ?ownership_event rdf:type ies_core:LegalOwnership .
+        ?state a ?stateType .
+        ?state ies:owns ?asset .
+        ?state ies:isStateOf ?actor .
+        ?state ies:inPeriod ?period .
+        ?state ies:inLocation ?location .
 
-        # Legal Owner
+        ?start_bounding ies:isStartOf ?state .
+        ?end_bounding ies:isEndOf ?state .
+      }
+      INSERT {
+        ?ownership_event rdf:type ies_core:LegalOwnership .
+        ?ownership_event ies_top:isPartOf ?period .
+        ?ownership_event ies_top:isPartOf ?location .
+
+        ?start_bounding ies:isStartOf ?ownership_event .
+        ?end_bounding ies:isEndOf ?ownership_event .
+
         ?legal_owner rdf:type ies_core:LegalOwner .
         ?legal_owner ies_top:isPartOf ?ownership_event .
-        ?legal_owner ies_top:isTemporalPartOf ?person .
+        ?legal_owner ies_top:isTemporalPartOf ?actor .
 
-        # Legally Owned
         ?legally_owned rdf:type ies_core:LegallyOwned .
         ?legally_owned ies_top:isTemporalPartOf ?asset .
         ?legally_owned ies_top:isPartOf ?ownership_event .
       }
       WHERE {
-        ?responsible_actor_state ies:owns ?asset .
-        ?responsible_actor_state ies:isStateOf ?person .
+        ?state ies:owns ?asset .
+        ?state ies:isStateOf ?actor .
+        ?state a ?stateType .
+
+        OPTIONAL { ?state ies:inPeriod ?period . }
+        OPTIONAL { ?state ies:inLocation ?location . }
+        OPTIONAL {
+          ?start_bounding a ies:BoundingState .
+          ?start_bounding ies:isStartOf ?state .
+        }
+        OPTIONAL {
+          ?end_bounding a ies:BoundingState .
+          ?end_bounding ies:isEndOf ?state .
+        }
+
+        # No outgoing properties beyond the expected ones
+        FILTER NOT EXISTS {
+          ?state ?p ?o .
+          FILTER(?p NOT IN (
+            rdf:type,
+            ies:owns,
+            ies:isStateOf,
+            ies:inPeriod,
+            ies:inLocation
+          ))
+        }
+        # The only things pointing to this state are bounding states (or nothing)
+        FILTER NOT EXISTS {
+          ?anything ?p2 ?state .
+          FILTER NOT EXISTS {
+            ?anything a ies:BoundingState .
+          }
+        }
 
         BIND(IRI(CONCAT(STR(?asset), "_ownership_activity")) AS ?ownership_event)
         BIND(IRI(CONCAT(STR(?asset), "_legal_owner"))        AS ?legal_owner)
         BIND(IRI(CONCAT(STR(?asset), "_legally_owned"))      AS ?legally_owned)
+      }
+
+  - name: "owns_to_legal_ownership_pattern_mapping_kept_states"
+    description: "Keep state (has extra triples). Remove owns. Mint new bounding state nodes on ownership_event."
+    enabled: true
+    order: 6
+    query: |
+      DELETE {
+        ?state ies:owns ?asset .
+      }
+      INSERT {
+        ?ownership_event rdf:type ies_core:LegalOwnership .
+
+        ?new_start rdf:type ies:BoundingState .
+        ?new_start ies:isStartOf ?ownership_event .
+        ?new_start ies:inPeriod ?start_period .
+
+        ?new_end rdf:type ies:BoundingState .
+        ?new_end ies:isEndOf ?ownership_event .
+        ?new_end ies:inPeriod ?end_period .
+
+        ?legal_owner rdf:type ies_core:LegalOwner .
+        ?legal_owner ies_top:isPartOf ?ownership_event .
+        ?legal_owner ies_top:isTemporalPartOf ?actor .
+
+        ?legally_owned rdf:type ies_core:LegallyOwned .
+        ?legally_owned ies_top:isTemporalPartOf ?asset .
+        ?legally_owned ies_top:isPartOf ?ownership_event .
+      }
+      WHERE {
+        ?state ies:owns ?asset .
+        ?state ies:isStateOf ?actor .
+
+        # State is kept: has extra outgoing triples (excluding isPartOf) OR non-bounding things point to it
+        {
+          ?state ?p ?o .
+          FILTER(?p NOT IN (
+            rdf:type,
+            ies:owns,
+            ies:isStateOf,
+            ies:inPeriod,
+            ies:inLocation,
+            ies_top:isPartOf
+          ))
+        } UNION {
+          ?anything ?p2 ?state .
+          FILTER NOT EXISTS { ?anything a ies:BoundingState . }
+        }
+
+        OPTIONAL {
+          ?start_bounding a ies:BoundingState .
+          ?start_bounding ies:isStartOf ?state .
+          ?start_bounding ies:inPeriod ?start_period .
+        }
+        OPTIONAL {
+          ?end_bounding a ies:BoundingState .
+          ?end_bounding ies:isEndOf ?state .
+          ?end_bounding ies:inPeriod ?end_period .
+        }
+
+        BIND(IRI(CONCAT(STR(?asset), "_ownership_activity")) AS ?ownership_event)
+        BIND(IRI(CONCAT(STR(?asset), "_legal_owner"))        AS ?legal_owner)
+        BIND(IRI(CONCAT(STR(?asset), "_legally_owned"))      AS ?legally_owned)
+        BIND(IRI(CONCAT(STR(?start_bounding), "_ownership")) AS ?new_start)
+        BIND(IRI(CONCAT(STR(?end_bounding),   "_ownership")) AS ?new_end)
+      }
+  
+  - name: "owns_to_legal_ownership_pattern_mapping_kept_states_timing"
+    description: "Duplicate inPeriod/inLocation from kept state onto ownership_event"
+    enabled: true
+    order: 7
+    query: |
+      INSERT {
+        ?ownership_event ies_top:isPartOf ?period .
+        ?ownership_event ies_top:isPartOf ?location .
+      }
+      WHERE {
+        ?legal_owner rdf:type ies_core:LegalOwner .
+        ?legal_owner ies_top:isTemporalPartOf ?actor .
+        ?legal_owner ies_top:isPartOf ?ownership_event .
+        ?ownership_event rdf:type ies_core:LegalOwnership .
+
+        ?state ies:isStateOf ?actor .
+
+        OPTIONAL { ?state ies:inPeriod ?period . }
+        OPTIONAL { ?state ies:inLocation ?location . }
+
+        FILTER(BOUND(?period) || BOUND(?location))
+
+        FILTER NOT EXISTS { ?ownership_event ies_top:isPartOf ?period . }
+        FILTER NOT EXISTS { ?ownership_event ies_top:isPartOf ?location . }
       }

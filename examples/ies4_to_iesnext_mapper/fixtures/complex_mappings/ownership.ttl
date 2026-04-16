@@ -2,15 +2,67 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix iso8601: <http://iso.org/iso8601#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+
+# person owns a house for a period of time, and has a friend and a (nonspecified) characteristic 
 data:house_001 a ies:RealEstate .
 data:person_001 a ies:Person .
+data:person_002 a ies:Person .
+data:characteristic_001 a ies:Characteristic .
+data:location_house_001 a ies:Location .
+
+data:friend_of_person_001 a ies:PersonState ;
+    ies:isStateOf data:person_002 .
 
 data:owner_of_house_001 a ies:PersonState ;
     ies:isStateOf data:person_001 ;
+    ies:inLocation data:location_house_001 ;
+    ies:hasCharacteristic data:characteristic_001 ;
+    ies:friendOf data:friend_of_person_001 ;
     ies:owns data:house_001 .
 
+data:moving_in_house_001 a ies:BoundingState ;
+    ies:isStartOf data:owner_of_house_001 ;
+    ies:inPeriod iso8601:20240301 .
+
+data:moving_out_house_001 a ies:BoundingState ;
+    ies:isEndOf data:owner_of_house_001 ;
+    ies:inPeriod iso8601:20260301 .
+
+iso8601:20240301 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2024-03-01"^^xsd:string .
+
+iso8601:20260301 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2026-03-01"^^xsd:string .
 
 
 
-   
+# organisation owns a vehicle in 2010 
+
+data:organisation_001 a ies:Organisation .
+data:vehicle_001 a ies:Vehicle .
+data:location_001 a ies:Location .
+
+data:organisation_001_state a ies:OrganisationState ;
+    ies:isStateOf data:organisation_001 ;
+    ies:owns data:vehicle_001 ;
+    ies:inPeriod iso8601:2010 ;
+    ies:inLocation data:location_001 .
+
+iso8601:2010 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2010"^^xsd:string .
+
+
+
+
+# problem for later?
+data:organisation_002 a ies:Organisation .
+data:vehicle_002 a ies:Vehicle .
+
+data:organisation_002_terrorist a ies:TerroristOrganisation ;
+    ies:isStateOf data:organisation_002 ;
+    ies:owns data:vehicle_002 .
+
+data:organisation_002_terrorist ies:owns data:vehicle_002 .
