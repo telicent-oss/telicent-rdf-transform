@@ -203,7 +203,7 @@ queries:
         BIND(IRI(CONCAT(STR(?asset), "_created"))      AS ?created)
       }
 
-  - name: "owns_to_legal_ownership_pattern_mapping_deletable_states"
+  - name: "owns_to_legal_ownership_pattern_mapping_delete_state"
     description: "Delete state (no extra triples beyond owns/isStateOf/inPeriod/inLocation/bounding states). Move inPeriod/inLocation directly to ownership_event, remap bounding states to ownership_event."
     enabled: true
     order: 5
@@ -274,7 +274,7 @@ queries:
         BIND(IRI(CONCAT(STR(?asset), "_legally_owned"))      AS ?legally_owned)
       }
 
-  - name: "owns_to_legal_ownership_pattern_mapping_kept_states"
+  - name: "owns_to_legal_ownership_pattern_mapping_kept_state_bounded"
     description: "Keep state (has extra triples). Remove owns. Mint new bounding state nodes on ownership_event."
     enabled: true
     order: 6
@@ -339,7 +339,7 @@ queries:
         BIND(IRI(CONCAT(STR(?end_bounding),   "_ownership")) AS ?new_end)
       }
   
-  - name: "owns_to_legal_ownership_pattern_mapping_kept_states_timing"
+  - name: "owns_to_legal_ownership_pattern_mapping_kept_state_in_period_location"
     description: "Duplicate inPeriod/inLocation from kept state onto ownership_event"
     enabled: true
     order: 7
