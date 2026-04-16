@@ -56,13 +56,3 @@ iso8601:2010 a ies:ParticularPeriod ;
 
 
 
-
-# problem for later?
-data:organisation_002 a ies:Organisation .
-data:vehicle_002 a ies:Vehicle .
-
-data:organisation_002_terrorist a ies:TerroristOrganisation ;
-    ies:isStateOf data:organisation_002 ;
-    ies:owns data:vehicle_002 .
-
-data:organisation_002_terrorist ies:owns data:vehicle_002 .
