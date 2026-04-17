@@ -49,3 +49,23 @@ data:once_a_month_002 a ies:RecurringPeriod ;
     ies:startsIn iso8601:20260101 ;
     ies:endsIn iso8601:20271201 ;
     ies:recurrentPeriodRepresentation "????-??-01"^^xsd:string .
+# occurrence every 15 minutes
+data: a ies:Event ;
+    ies:inPeriod data:every_15_minutes .
+
+data:every_15_minutes a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T??:15:00"^^xsd:string .
+
+# an event that occurs every second - clock ticking
+data:clock_tick a ies:Event ;
+    ies:inPeriod data:every_second .
+
+data:every_second a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T??:??:01"^^xsd:string .
+
+# an event that occurs every 5 milliseconds -e.g. something is spinning??
+data:quick_spin a ies:Event ;
+    ies:inPeriod data:every_5_milliseconds .
+
+data:every_5_milliseconds a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T??:??:00.005"^^xsd:string .

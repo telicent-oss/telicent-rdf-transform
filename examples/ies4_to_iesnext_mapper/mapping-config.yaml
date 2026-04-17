@@ -173,88 +173,94 @@ queries:
         ?recurring_period a ies:RecurringPeriod .
         ?recurring_period ies:recurrentPeriodRepresentation ?recurrent_literal .
 
-        # Optionally get start ParticularPeriod for dtstart/DSTART
         OPTIONAL {
           ?recurring_period ies:startsIn ?start_period .
           ?start_period ies:iso8601PeriodRepresentation ?start_literal .
           BIND(REPLACE(STR(?start_literal), "[-:]", "") AS ?dstart_val)
         }
 
-        # Optionally get end ParticularPeriod for dtend/UNTIL
         OPTIONAL {
           ?recurring_period ies:endsIn ?end_period .
           ?end_period ies:iso8601PeriodRepresentation ?end_literal .
           BIND(REPLACE(STR(?end_literal), "[-:]", "") AS ?until_val)
         }
 
-        # Detect pattern type by regex on the ?? literal
-        # Daily: ????-??-??T{HH} or ????-??-??T{HH}:{MM} or ????-??-??T{HH}:{MM}:{SS}
+        # Pattern detection
+        # Daily: ????-??-??T{HH}:... where hour is a known digit (not ??)
         BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-\\?\\?T\\d{2}") AS ?is_daily)
         # Yearly: ????-{MM}-{DD}
         BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$") AS ?is_yearly)
         # Monthly: ????-??-{DD}
         BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$") AS ?is_monthly)
+        # Minutely: ????-??-??T??:{MM}:... where hour is ?? but minute is known
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-\\?\\?T\\?\\?:(\\d{2})") AS ?is_minutely)
+        # Secondly: ????-??-??T??:??:{SS} or ????-??-??T??:??:{SS}.{ms} where hour and minute are ??
+        BIND(REGEX(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-\\?\\?T\\?\\?:\\?\\?:") AS ?is_secondly)
 
-        # Daily: extract hour (required), minute (optional), second (optional)
+        # Daily: extract hour, minute, second
         BIND(IF(?is_daily,
-          REPLACE(STR(?recurrent_literal), "^.*T(\\d{2}).*$", "$1"),
-          "") AS ?raw_hour)
+          xsd:integer(REPLACE(STR(?recurrent_literal), "^.*T(\\d{2}).*$", "$1")),
+          0) AS ?hour_int)
         BIND(IF(?is_daily && REGEX(STR(?recurrent_literal), "T\\d{2}:\\d{2}"),
-          REPLACE(STR(?recurrent_literal), "^.*T\\d{2}:(\\d{2}).*$", "$1"),
-          "") AS ?raw_minute)
+          xsd:integer(REPLACE(STR(?recurrent_literal), "^.*T\\d{2}:(\\d{2}).*$", "$1")),
+          0) AS ?minute_int)
         BIND(IF(?is_daily && REGEX(STR(?recurrent_literal), "T\\d{2}:\\d{2}:\\d{2}"),
-          REPLACE(STR(?recurrent_literal), "^.*T\\d{2}:\\d{2}:(\\d{2})$", "$1"),
-          "") AS ?raw_second)
+          xsd:integer(REPLACE(STR(?recurrent_literal), "^.*T\\d{2}:\\d{2}:(\\d{2})(\\..+)?$", "$1")),
+          0) AS ?second_int)
 
-        # Strip leading zeros for iCal
-        BIND(IF(?is_daily, STR(xsd:integer(?raw_hour)), "") AS ?hour)
-        BIND(IF(BOUND(?raw_minute) && ?raw_minute != "",
-          CONCAT(";BYMINUTE=", STR(xsd:integer(?raw_minute))), "") AS ?minute_part)
-        BIND(IF(BOUND(?raw_second) && ?raw_second != "",
-          CONCAT(";BYSECOND=", STR(xsd:integer(?raw_second))), "") AS ?second_part)
+        # Daily optional parts
+        BIND(IF(?is_daily && ?minute_int > 0, CONCAT(";BYMINUTE=", STR(?minute_int)), "") AS ?minute_part)
+        BIND(IF(?is_daily && ?second_int > 0, CONCAT(";BYSECOND=", STR(?second_int)), "") AS ?second_part)
+
+        # Minutely: extract minute interval
+        BIND(IF(?is_minutely,
+          xsd:integer(REPLACE(STR(?recurrent_literal), "^.*T\\?\\?:(\\d{2}).*$", "$1")),
+          0) AS ?minute_interval)
+
+        # Secondly: extract second interval (ignore sub-second, treat as 1)
+        BIND(IF(?is_secondly && REGEX(STR(?recurrent_literal), "T\\?\\?:\\?\\?:(\\d{2})\\."),
+          1,
+          IF(?is_secondly,
+            xsd:integer(REPLACE(STR(?recurrent_literal), "^.*T\\?\\?:\\?\\?:(\\d{2}).*$", "$1")),
+            0)
+          ) AS ?second_interval)
 
         # Yearly: extract month and day
         BIND(IF(?is_yearly,
-          REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$1"),
-          "") AS ?raw_month)
+          STR(xsd:integer(REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$1"))),
+          "") AS ?month)
         BIND(IF(?is_yearly,
-          REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$2"),
-          "") AS ?raw_day)
-        BIND(IF(?is_yearly, STR(xsd:integer(?raw_month)), "") AS ?month)
-        BIND(IF(?is_yearly, STR(xsd:integer(?raw_day)),   "") AS ?day)
+          STR(xsd:integer(REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-(\\d{2})-(\\d{2})$", "$2"))),
+          "") AS ?day)
 
         # Monthly: extract day
         BIND(IF(?is_monthly,
-          REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$", "$1"),
-          "") AS ?raw_month_day)
-        BIND(IF(?is_monthly, STR(xsd:integer(?raw_month_day)), "") AS ?month_day)
+          STR(xsd:integer(REPLACE(STR(?recurrent_literal), "^\\?\\?\\?\\?-\\?\\?-(\\d{2})$", "$1"))),
+          "") AS ?month_day)
 
-        # Build DSTART prefix if start period exists
-        BIND(IF(BOUND(?dstart_val),
-          CONCAT("DSTART:", ?dstart_val, ";"),
-          "") AS ?dstart_prefix)
+        # DSTART prefix and UNTIL suffix
+        BIND(IF(BOUND(?dstart_val), CONCAT("DSTART:", ?dstart_val, ";"), "") AS ?dstart_prefix)
+        BIND(IF(BOUND(?until_val), CONCAT(";UNTIL=", ?until_val), "") AS ?until_suffix)
 
-        # Build UNTIL suffix if end period exists
-        BIND(IF(BOUND(?until_val),
-          CONCAT(";UNTIL=", ?until_val),
-          "") AS ?until_suffix)
-
-        # Assemble RRULE string
+        # Assemble RRULE
         BIND(
           IF(?is_daily,
-            CONCAT(?dstart_prefix, "FREQ=DAILY;BYHOUR=", ?hour, ?minute_part, ?second_part, ?until_suffix),
+            CONCAT(?dstart_prefix, "FREQ=DAILY;BYHOUR=", STR(?hour_int), ?minute_part, ?second_part, ?until_suffix),
+          IF(?is_minutely,
+            CONCAT(?dstart_prefix, "FREQ=MINUTELY;INTERVAL=", STR(?minute_interval), ?until_suffix),
+          IF(?is_secondly,
+            CONCAT(?dstart_prefix, "FREQ=SECONDLY;INTERVAL=", STR(?second_interval), ?until_suffix),
           IF(?is_yearly,
             CONCAT(?dstart_prefix, "FREQ=YEARLY;BYMONTH=", ?month, ";BYMONTHDAY=", ?day, ?until_suffix),
           IF(?is_monthly,
             CONCAT(?dstart_prefix, "FREQ=MONTHLY;BYMONTHDAY=", ?month_day, ?until_suffix),
-            ?recurrent_literal
-          )))
+            STR(?recurrent_literal)
+          )))))
           AS ?rrule_str
         )
         BIND(STRDT(?rrule_str, xsd:string) AS ?rrule)
         BIND(IRI(CONCAT(STR(?recurring_period), "_representation")) AS ?ical_representation)
       }
-  
 
   - name: "make_to_create_pattern_mapping"
     description: "Replace ies:make property with ies_core:Create pattern"

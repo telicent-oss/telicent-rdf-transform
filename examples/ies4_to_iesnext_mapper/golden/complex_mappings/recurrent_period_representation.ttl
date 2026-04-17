@@ -21,7 +21,7 @@ data:daily_at_8 a ies_core:RecurringTimespan ;
     ies_core:hasICalRepresentation  data:daily_at_8_representation .
 
 data:daily_at_8_representation a ies_core:ICalRepresentation ;
-    ical:rrule "DSTART:20260401T0800;FREQ=DAILY;BYHOUR=8;BYMINUTE=0"^^xsd:string ;
+    ical:rrule "DSTART:20260401T0800;FREQ=DAILY;BYHOUR=8"^^xsd:string ;
     ical:dtstart "2026-04-01T08:00"^^xsd:string .
 
 # an event that occurs once a year with no start or end
@@ -67,3 +67,33 @@ data:once_a_month_002_representation a ies_core:ICalRepresentation ;
     ical:rrule "DSTART:20260101;FREQ=MONTHLY;BYMONTHDAY=1;UNTIL=20271201"^^xsd:string ;
     ical:dtstart "2026-01-01"^^xsd:string ;
     ical:dtend "2027-12-01"^^xsd:string .
+
+# occurrence every 15 minutes
+data: a ies_core:Activity ;
+    ies_top:isPartOf data:every_15_minutes .
+
+data:every_15_minutes a ies_core:RecurringTimespan ;
+    ies_core:hasICalRepresentation data:every_15_minutes_representation .
+
+ data:every_15_minutes_representation a ies_core:ICalRepresentation ;
+     ical:rrule "FREQ=MINUTELY;INTERVAL=15"^^xsd:string .
+
+# an event that occurs every second - clock ticking
+data:clock_tick a ies_core:Activity ;
+    ies_top:isPartOf data:every_second .
+
+data:every_second a ies_core:RecurringTimespan ;
+    ies_core:hasICalRepresentation data:every_second_representation .
+
+ data:every_second_representation a ies_core:ICalRepresentation ;
+     ical:rrule "FREQ=SECONDLY;INTERVAL=1"^^xsd:string .
+
+# an event that occurs every 5 milliseconds -e.g. something is spinning??
+data:quick_spin a ies_core:Activity ;
+    ies_top:isPartOf data:every_5_milliseconds .
+
+data:every_5_milliseconds a ies_core:RecurringTimespan ;
+    ies_core:hasICalRepresentation  data:every_5_milliseconds_representation .
+
+ data:every_5_milliseconds_representation a ies_core:ICalRepresentation ;
+     ical:rrule "FREQ=SECONDLY;INTERVAL=1"^^xsd:string .
