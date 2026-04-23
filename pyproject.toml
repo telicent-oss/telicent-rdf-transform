@@ -1,10 +1,17 @@
+[build-system]
+requires = ["setuptools>=61", "wheel==0.41.3", "pip-tools==7.3.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "telicent-rdf-transform"
+description = "A python library for transforming RDF data from one form to another."
+readme = "README.md"
 version = "0.0.0"
 authors = [{name = "Telicent Ltd", email = "admin@telicent.io"}]
 requires-python = ">=3.12"
+license = {file = "LICENSE"}
 dependencies = [
-    "python-dotenv==1.*",
+    "python-dotenv==1.2.*",
     "telicent-lib==6.*",
     "pyyaml==6.*",
     "rdflib==7.*",
@@ -90,5 +97,6 @@ testpaths = [
     "examples",
 ]
 
-[tool.setuptools]
-py-modules = []
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rdf_transform*"]
