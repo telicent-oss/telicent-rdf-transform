@@ -11,7 +11,7 @@ authors = [{name = "Telicent Ltd", email = "admin@telicent.io"}]
 requires-python = ">=3.12"
 license = {file = "LICENSE"}
 dependencies = [
-    "python-dotenv==1.*",
+    "python-dotenv==1.2.*",
     "telicent-lib==6.*",
     "pyyaml==6.*",
     "rdflib==7.*",
