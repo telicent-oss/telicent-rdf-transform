@@ -1,0 +1,11 @@
+defaultJiraIssueType: 10009 # Task
+rules:
+  - type: label
+    labels:
+      - bug
+    jiraIssueType: 10011 # Bug
+  - type: title
+    searchTerms:
+      - feature
+      - epic
+    jiraIssueType: 10008 # Story
