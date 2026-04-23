@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "telicent-rdf-transform"
 description = "A python library for transforming RDF data from one form to another."
 readme = "README.md"
-version = "0.0.0"
+version = "0.1.0"
 authors = [{name = "Telicent Ltd", email = "admin@telicent.io"}]
 requires-python = ">=3.12"
 license = {file = "LICENSE"}
