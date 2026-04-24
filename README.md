@@ -2,7 +2,7 @@
 
 A python library for transforming RDF data from one form to another; in most cases: data from one ontology to another. Configuration of this transformation is provided as a series of SPARQL queries. This library has been built so it can be used in multiple contexts: streaming, batch files, APIs, etc.
 
-Within this repo we provide the library (see `/rdf_transform`) and examples (see `/examples`) demonstrating different use cases.
+The library itself (telicent-rdf-transform) is accompanied by [`/examples`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples) demonstrating different use cases and [documentation](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/docs) which can be found on [github](https://github.com/telicent-oss/telicent-rdf-transform/tree/main).
 
 ## Features
 
@@ -138,7 +138,7 @@ The library raises exceptions in the following cases:
 Queries that produce no results are not errors - they simply contribute no triples to the output.
 
 ---
-For detailed configuration examples and SPARQL patterns, see **[docs/MAPPING_GUIDE.md](docs/MAPPING_GUIDE.md)**.
+For detailed configuration examples and SPARQL patterns, see **[docs/MAPPING_GUIDE.md](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/docs)**.
 
 ## How it Works
 
@@ -169,7 +169,7 @@ The working graph approach means UPDATE queries can prepare data for subsequent 
 
 ## Examples
 
-The `/examples` directory contains four examples demonstrating different use cases:
+The [`/examples`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples) directory contains four examples demonstrating different use cases:
 
 ### basic_mapper
 
@@ -180,7 +180,7 @@ cd examples/basic_mapper
 python run.py
 ```
 
-See [examples/basic_mapper/README.md](examples/basic_mapper/README.md) for details.
+See [examples/basic_mapper/README.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/examples/basic_mapper/README.md) for details.
 
 ### batch_file_mapper
 
@@ -191,13 +191,13 @@ cd examples/batch_file_mapper
 python transform_countries.py
 ```
 
-See [examples/batch_file_mapper/README.md](examples/batch_file_mapper/README.md) for details.
+See [examples/batch_file_mapper/README.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/examples/batch_file_mapper/README.md) for details.
 
 ### ies4_to_iesnext_mapper
 
 A work-in-progress configuration for transforming IES4 ontology data to IES Next. Includes comprehensive SPARQL queries, mapping files, and test fixtures. The configuration for this mapper is being actively developed alongside the development of the IES Next ontology stack.
 
-See [examples/ies4_to_iesnext_mapper/](examples/ies4_to_iesnext_mapper/) for the configuration and test files.
+See [examples/ies4_to_iesnext_mapper/](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples/ies4_to_iesnext_mapper) for the configuration and test files.
 
 ### telicent_mapper
 
@@ -224,7 +224,7 @@ python -m telicent_mapper.mapper
 | `RDF_OUTPUT_FORMAT` | Output format (MIME type) | `text/turtle` |
 | `SECURITY_LABEL_AND_GROUP` | Security label and_group | `urn:telicent:groups:datasets:mapped` |
 ---
-See [examples/telicent_mapper/](examples/telicent_mapper/) for configuration and test files.
+See [examples/telicent_mapper/](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples/telicent_mapper) for configuration and test files.
 
 ## Architecture
 
@@ -238,12 +238,12 @@ rdf_transform/        # Core transformation library (rdflib only)
 └── formats.py        # Format utilities (RDF MIME type handling)
 ```
 
-See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for detailed architecture documentation with diagrams, data flows, and design patterns.
+See **[docs/ARCHITECTURE.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/docs/ARCHITECTURE.md)** for detailed architecture documentation with diagrams, data flows, and design patterns.
 
 ## Development
 
 ### Running Tests
-
+Tests for development can be found in [`/tests`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/tests).
 ```bash
 # Run all tests (core library + examples)
 pytest
@@ -279,8 +279,8 @@ pre-commit run --all-files
 
 ## Documentation
 
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Architecture diagrams, structure, and design patterns
-- **[docs/MAPPING_GUIDE.md](docs/MAPPING_GUIDE.md)** - SPARQL patterns and advanced mapping techniques
+- **[docs/ARCHITECTURE.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/docs/ARCHITECTURE.md)** - Architecture diagrams, structure, and design patterns
+- **[docs/MAPPING_GUIDE.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/docs/MAPPING_GUIDE.md)** - SPARQL patterns and advanced mapping techniques
 
 ## API Reference
 
