@@ -68,32 +68,33 @@ data:once_a_month_002_representation a ies_core:ICalRepresentation ;
     ical:dtstart "2026-01-01"^^xsd:string ;
     ical:dtend "2027-12-01"^^xsd:string .
 
-# occurrence every 15 minutes
-data: a ies_core:Activity ;
-    ies_top:isPartOf data:every_15_minutes .
+# occurrence once an hour on the 15th minute
+data:event_001 a ies_core:Activity ;
+    ies_top:isPartOf data:every_15th_minute .
 
-data:every_15_minutes a ies_core:RecurringTimespan ;
-    ies_core:hasICalRepresentation data:every_15_minutes_representation .
+data:every_15th_minute a ies_core:RecurringTimespan ;
+    ies_core:hasICalRepresentation data:every_15th_minute_representation .
 
- data:every_15_minutes_representation a ies_core:ICalRepresentation ;
-     ical:rrule "FREQ=MINUTELY;INTERVAL=15"^^xsd:string .
+ data:every_15th_minute_representation a ies_core:ICalRepresentation ;
+     ical:rrule "FREQ=HOURLY;BYMINUTE=15"^^xsd:string .
 
-# an event that occurs every second - clock ticking
+# an event that occurs every minute on the first second - clock ticking
 data:clock_tick a ies_core:Activity ;
+    ies_top:isPartOf data:every_minute .
+
+data:every_minute a ies_core:RecurringTimespan ;
+    ies_core:hasICalRepresentation data:every_minute_representation .
+
+ data:every_minute_representation a ies_core:ICalRepresentation ;
+     ical:rrule "FREQ=MINUTELY;BYSECOND=1"^^xsd:string .
+
+# an event that occurs every second on the 5th milliseconds
+# ical does not support milisecond notation, will be mapped as every second
+data:quick_spin a ies_core:Activity ;
     ies_top:isPartOf data:every_second .
 
 data:every_second a ies_core:RecurringTimespan ;
-    ies_core:hasICalRepresentation data:every_second_representation .
+    ies_core:hasICalRepresentation  data:every_second_representation .
 
  data:every_second_representation a ies_core:ICalRepresentation ;
-     ical:rrule "FREQ=SECONDLY;INTERVAL=1"^^xsd:string .
-
-# an event that occurs every 5 milliseconds -e.g. something is spinning??
-data:quick_spin a ies_core:Activity ;
-    ies_top:isPartOf data:every_5_milliseconds .
-
-data:every_5_milliseconds a ies_core:RecurringTimespan ;
-    ies_core:hasICalRepresentation  data:every_5_milliseconds_representation .
-
- data:every_5_milliseconds_representation a ies_core:ICalRepresentation ;
      ical:rrule "FREQ=SECONDLY;INTERVAL=1"^^xsd:string .
