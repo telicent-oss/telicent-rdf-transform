@@ -1,0 +1,12 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# conference
+data:conference_2024        a    obo:BFO_0000015 ;  # process
+    rdfs:label              "Annual Conference 2024" ;
+    obo:BFO_0000199         data:conference_date .   # occupies temporal region
+
+data:conference_date        a    obo:BFO_0000038 ;  # one-dimensional temporal region
+    rdfs:label              "2024-01-15"^^xsd:date .

@@ -1,0 +1,37 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+data:Alice_Smith a ies:Person ;
+    ies:hasName data:Alice_Smith_name  .
+
+data:Alice_Smith_name a ies:PersonName ;
+    ies:representationValue "Alice Smith"^^xsd:string .
+
+data:Alice_Smith_state a ies:PersonState ;
+    ies:isStateOf data:Alice_Smith .
+
+
+data:Alice_in_meeting a ies:Attendance ;
+    ies:isParticipationOf data:Alice_Smith ;
+    ies:isParticipantIn data:important_meeting .
+
+data:important_meeting a ies:Meeting ;
+    rdfs:label "Important HR Meeting with Alice Smith"^^xsd:string .
+
+data:organisation_ABC a ies:Organisation ;
+    ies:isIdentifiedBy data:organisation_ABC_id ;
+    rdfs:label "Organisation ABC"^^xsd:string .
+
+data:organisation_ABC_id a ies:Identifier ;
+    ies:representationValue "ABC123"^^xsd:string .
+
+data:HR_department a ies:Department ;
+    ies:isPartOf data:organisation_ABC .
+
+data:HR_attends_meeting a ies:Attendance ;
+    ies:isParticipationOf data:HR_department ;
+    ies:isParticipantIn data:important_meeting .
+    
+

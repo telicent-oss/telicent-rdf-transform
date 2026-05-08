@@ -1,0 +1,16 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+data:person_a a ies:Person .
+
+data:participant_a a ies:EventParticipant ;
+    ies:isParticipationOf data:person_a ;
+    ies:isParticipantIn data:event_a .
+
+data:event_a a ies:Event ;
+    ies:inPeriod data:20240101 .
+ 
+data:20240101 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2024-01-01"^^xsd:string .

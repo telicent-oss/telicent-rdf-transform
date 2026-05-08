@@ -1,0 +1,457 @@
+# IES4 to BFO/CCO Mapping Configuration
+
+namespaces:
+  ies:  "http://ies.data.gov.uk/ontology/ies4#"
+  obo:  "http://purl.obolibrary.org/obo/"
+  cco:  "https://www.commoncoreontologies.org/"
+  rdf:  "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+  xsd:  "http://www.w3.org/2001/XMLSchema#"
+  owl:  "http://www.w3.org/2002/07/owl#"
+  data: "http://example.org/rdf/data/"
+
+mapping_file: mappings.ttl
+mapping_file_format: text/turtle
+
+queries:
+
+  # 1. Object like entities to BFO object + history + spatiotemporal region
+
+  - name: "map_objects"
+    description: >
+      Transform ies:Person and other object-like entities into a BFO object
+      (BFO_0000030) plus a linked history (BFO_0000182) and spatiotemporal
+      region (BFO_0000011).
+    enabled: true
+    order: 1
+    query: |
+      DELETE {
+        ?object a ?iesClass .
+      }
+      INSERT {
+        ?object     a                                             <http://purl.obolibrary.org/obo/BFO_0000030> .
+        ?history    a                                             <http://purl.obolibrary.org/obo/BFO_0000182> .
+        ?history    <http://purl.obolibrary.org/obo/BFO_0000184> ?object .
+        ?history    <http://purl.obolibrary.org/obo/BFO_0000200> ?spacetime .
+        ?spacetime  a                                             <http://purl.obolibrary.org/obo/BFO_0000011> .
+      }
+      WHERE {
+        VALUES ?iesClass {
+          ies:Person
+          ies:IndividualDocument
+          ies:Device
+          ies:Vehicle
+          ies:RoadVehicle
+          ies:Aircraft
+          ies:Ship
+          ies:CommunicationsDevice
+          ies:RadioMast
+          ies:cellularBaseStation
+          ies:MobileHandset
+          ies:LandlineHandset
+          ies:IPPhoneHandset
+          ies:SimCard
+          ies:PersonalRadioHandset
+          ies:CRBRadioHandset
+          ies:SatellitePhoneHandset
+          ies:TravelCard
+          ies:StoreCard
+          ies:DebitCard
+          ies:CreditCard
+          ies:BankCard
+          ies:PaymentArtefact
+          ies:System
+          ies:NetworkInterface
+        }
+        ?object a ?iesClass .
+        BIND(IRI(CONCAT(STR(?object), "_history"))   AS ?history)
+        BIND(IRI(CONCAT(STR(?object), "_spacetime")) AS ?spacetime)
+      }
+
+  # 2. Organisations to BFO object aggregate + history + spatiotemporal region
+
+  - name: "map_organisation"
+    description: >
+      Transform ies:Organisation and subclasses into a BFO object aggregate
+      (BFO_0000027) plus a linked history (BFO_0000182) and spatiotemporal
+      region (BFO_0000011).
+    enabled: true
+    order: 2
+    query: |
+      DELETE {
+        ?org a ?iesClass .
+      }
+      INSERT {
+        ?org        a                                             <http://purl.obolibrary.org/obo/BFO_0000027> .
+        ?history    a                                             <http://purl.obolibrary.org/obo/BFO_0000182> .
+        ?history    <http://purl.obolibrary.org/obo/BFO_0000184> ?org .
+        ?history    <http://purl.obolibrary.org/obo/BFO_0000200> ?spacetime .
+        ?spacetime  a                                             <http://purl.obolibrary.org/obo/BFO_0000011> .
+      }
+      WHERE {
+        VALUES ?iesClass {
+          ies:Organisation
+          ies:ReligiousOrganisation
+          ies:GovernmentOrganisation
+          ies:EducationalOrganisation
+          ies:CommercialOrganisation
+          ies:NotForProfitOrganisation
+          ies:Government
+          ies:RegionalConstituency
+          ies:Nation
+          ies:Department
+          ies:Team
+          ies:IntelligenceAgency
+          ies:MilitaryOrganisation
+          ies:LawEnforcementOrganisation
+        }
+        ?org a ?iesClass .
+        BIND(IRI(CONCAT(STR(?org), "_history"))   AS ?history)
+        BIND(IRI(CONCAT(STR(?org), "_spacetime")) AS ?spacetime)
+      }
+
+  # 3. Assets to BFO material entity + history + spatiotemporal region
+
+  - name: "map_asset"
+    description: >
+      Transform ies:Asset and subclasses into a BFO material entity
+      (BFO_0000040) plus a linked history (BFO_0000182) and spatiotemporal
+      region (BFO_0000011).
+    enabled: true
+    order: 3
+    query: |
+      DELETE {
+        ?asset a ?iesClass .
+      }
+      INSERT {
+        ?asset      a                                             <http://purl.obolibrary.org/obo/BFO_0000040> .
+        ?history    a                                             <http://purl.obolibrary.org/obo/BFO_0000182> .
+        ?history    <http://purl.obolibrary.org/obo/BFO_0000184> ?asset .
+        ?history    <http://purl.obolibrary.org/obo/BFO_0000200> ?spacetime .
+        ?spacetime  a                                             <http://purl.obolibrary.org/obo/BFO_0000011> .
+      }
+      WHERE {
+        VALUES ?iesClass {
+          ies:Asset
+          ies:Facility
+          ies:IncarcerationFacility
+          ies:Port
+          ies:Airport
+        }
+        ?asset a ?iesClass .
+        BIND(IRI(CONCAT(STR(?asset), "_history"))   AS ?history)
+        BIND(IRI(CONCAT(STR(?asset), "_spacetime")) AS ?spacetime)
+      }
+
+  # 4. Attendance to BFO process linked to event and participant history
+
+  - name: "map_attendance"
+    description: >
+      Transform IES Attendance (EventParticipant) into BFO process linked
+      via BFO_0000132 (occurrent part of) to both the event and the
+      participant's history.
+    enabled: true
+    order: 4
+    query: |
+      DELETE {
+        ?attendance a ?iesClass .
+        ?attendance ies:isParticipantIn ?event .
+        ?attendance ies:isParticipationOf ?entity .
+      }
+      INSERT {
+        ?attendance a <http://purl.obolibrary.org/obo/BFO_0000015> .
+        ?attendance <http://purl.obolibrary.org/obo/BFO_0000132> ?event .
+        ?attendance <http://purl.obolibrary.org/obo/BFO_0000132> ?history .
+      }
+      WHERE {
+        VALUES ?iesClass {
+          ies:Attendance
+          ies:EventParticipant
+        }
+        ?attendance a ?iesClass .
+        ?attendance ies:isParticipantIn ?event .
+        ?attendance ies:isParticipationOf ?entity .
+        BIND(IRI(CONCAT(STR(?entity), "_history")) AS ?history)
+      }
+
+  # 5a. Name nodes to CCO Designative Name (cco:ont00000003)
+
+  - name: "map_name_node"
+    description: >
+      Transform IES name nodes into CCO Designative Name (ont00000003)
+      and Information Bearing Entity (ont_00000253) carrying the literal.
+    enabled: true
+    order: 5
+    query: |
+      DELETE {
+        ?repNode  a                        ?repClass .
+        ?repNode  ies:representationValue  ?value .
+      }
+      INSERT {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont00000003> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+      WHERE {
+        VALUES ?repProp {
+          ies:isRepresentedAs
+          ies:hasName
+        }
+        VALUES ?repClass {
+          ies:Name
+          ies:PersonName
+          ies:Surname
+          ies:GivenName
+        }
+        ?entity   ?repProp                 ?repNode .
+        ?repNode  a                        ?repClass .
+        ?repNode  ies:representationValue  ?value .
+        BIND(IRI(CONCAT(STR(?repNode), "_ibe")) AS ?ibeNode)
+      }
+
+  # 5b. Identifier nodes to CCO Non-Name Identifier (cco:ont00000077)
+
+  - name: "map_identifier_node"
+    description: >
+      Transform IES identifier nodes into CCO Non-Name Identifier (ont00000077)
+      and Information Bearing Entity (ont_00000253) carrying the literal.
+    enabled: true
+    order: 6
+    query: |
+      DELETE {
+        ?repNode  a                        ?repClass .
+        ?repNode  ies:representationValue  ?value .
+      }
+      INSERT {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont00000077> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+      WHERE {
+        VALUES ?repProp {
+          ies:isRepresentedAs
+          ies:isIdentifiedBy
+        }
+        VALUES ?repClass {
+          ies:Identifier
+        }
+        ?entity   ?repProp                 ?repNode .
+        ?repNode  a                        ?repClass .
+        ?repNode  ies:representationValue  ?value .
+        BIND(IRI(CONCAT(STR(?repNode), "_ibe")) AS ?ibeNode)
+      }
+
+  # 5c. Generic representation nodes to CCO Designative ICE (ont_00000686)
+
+  - name: "map_representation_node"
+    description: >
+      Transform remaining IES representation nodes into CCO Designative ICE
+      (ont_00000686) and Information Bearing Entity (ont_00000253).
+    enabled: true
+    order: 7
+    query: |
+      DELETE {
+        ?repNode  a                        ?repClass .
+        ?repNode  ies:representationValue  ?value .
+      }
+      INSERT {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont_00000686> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+      WHERE {
+        VALUES ?repProp {
+          ies:isRepresentedAs
+          ies:documentedBy
+        }
+        VALUES ?repClass {
+          ies:Representation
+          ies:ClassOfIndividualDocument
+          ies:WorkOfDocumentation
+        }
+        ?entity   ?repProp                 ?repNode .
+        ?repNode  a                        ?repClass .
+        ?repNode  ies:representationValue  ?value .
+        BIND(IRI(CONCAT(STR(?repNode), "_ibe")) AS ?ibeNode)
+      }
+
+  # 5d. Clean up leftover IES representation properties on the entity
+
+  - name: "map_representation_cleanup"
+    description: >
+      Remove leftover IES representation property triples from the entity
+      after all representation nodes have been rewritten.
+    enabled: true
+    order: 8
+    query: |
+      DELETE {
+        ?entity ?repProp ?repNode .
+      }
+      WHERE {
+        VALUES ?repProp {
+          ies:isRepresentedAs
+          ies:hasName
+          ies:isIdentifiedBy
+          ies:documentedBy
+        }
+        ?entity  ?repProp  ?repNode .
+        FILTER EXISTS {
+          { ?repNode a <https://www.commoncoreontologies.org/ont00000003> . }
+          UNION
+          { ?repNode a <https://www.commoncoreontologies.org/ont00000077> . }
+          UNION
+          { ?repNode a <https://www.commoncoreontologies.org/ont_00000686> . }
+        }
+      }
+
+  # 6. Link states to their entity's history via BFO_0000132 (occurrent part of)
+
+  - name: "map_state_to_history"
+    description: >
+      Link mapped state processes to the history of the entity they are
+      a state of, via BFO_0000132 (occurrent part of).
+    enabled: true
+    order: 9
+    query: |
+      INSERT {
+        ?state <http://purl.obolibrary.org/obo/BFO_0000132> ?history .
+      }
+      WHERE {
+        ?state  a                                              <http://purl.obolibrary.org/obo/BFO_0000015> .
+        ?state  <http://purl.obolibrary.org/obo/BFO_0000132> ?entity .
+        ?entity a                                              <http://purl.obolibrary.org/obo/BFO_0000030> .
+        BIND(IRI(CONCAT(STR(?entity), "_history")) AS ?history)
+        FILTER EXISTS { ?history a <http://purl.obolibrary.org/obo/BFO_0000182> . }
+      }
+
+  # 7a. ParticularPeriod period node rewrite to BFO one-dimensional temporal region
+
+  - name: "map_period_node"
+    description: >
+      Transform ies:ParticularPeriod nodes into BFO one-dimensional temporal
+      regions (BFO_0000038) with the ISO8601 literal carried as rdfs:label.
+    enabled: true
+    order: 10
+    query: |
+      DELETE {
+        ?period  a                               ies:ParticularPeriod .
+        ?period  ies:iso8601PeriodRepresentation ?value .
+      }
+      INSERT {
+        ?period  a          <http://purl.obolibrary.org/obo/BFO_0000038> .
+        ?period  rdfs:label ?value .
+      }
+      WHERE {
+        ?period  a                               ies:ParticularPeriod .
+        ?period  ies:iso8601PeriodRepresentation ?value .
+      }
+
+  # 7b. Rewrite ies:inPeriod to BFO_0000199 (occupies temporal region)
+
+  - name: "map_period_cleanup"
+    description: >
+      Replace ies:inPeriod with BFO_0000199 (occupies temporal region)
+      now that the period node has been rewritten to BFO_0000038.
+    enabled: true
+    order: 11
+    query: |
+      DELETE {
+        ?process ies:inPeriod ?period .
+      }
+      INSERT {
+        ?process <http://purl.obolibrary.org/obo/BFO_0000199> ?period .
+      }
+      WHERE {
+        ?process ies:inPeriod ?period .
+        ?period  a            <http://purl.obolibrary.org/obo/BFO_0000038> .
+      }
+
+  # 8. Continuant part of — ies:isPartOf between continuants to BFO_0000175
+
+  - name: "map_continuant_part_of"
+    description: >
+      Transform ies:isPartOf between continuant entities into BFO_0000175
+      (continuant part of).
+    enabled: true
+    order: 50
+    query: |
+      DELETE {
+        ?child ies:isPartOf ?parent .
+      }
+      INSERT {
+        ?child <http://purl.obolibrary.org/obo/BFO_0000175> ?parent .
+      }
+      WHERE {
+        ?child ies:isPartOf ?parent .
+        VALUES ?continuantClass {
+          <http://purl.obolibrary.org/obo/BFO_0000030>
+          <http://purl.obolibrary.org/obo/BFO_0000027>
+          <http://purl.obolibrary.org/obo/BFO_0000040>
+        }
+        ?child a ?continuantClass .
+      }
+
+  # 100. Generic property and class mapping
+
+  - name: "map_properties_and_classes"
+    description: >
+      Transform all remaining IES4 properties and classes using the
+      owl:equivalentProperty / owl:equivalentClass declarations in mappings.ttl.
+    enabled: true
+    order: 100
+    query: |
+      DELETE {
+        ?subject ?sourceProp ?object .
+      }
+      INSERT {
+        ?subject ?targetProp ?object .
+      }
+      WHERE {
+        ?subject ?sourceProp ?object .
+        ?sourceProp owl:equivalentProperty ?targetProp .
+      };
+
+      DELETE {
+        ?subject a ?sourceClass .
+      }
+      INSERT {
+        ?subject a ?targetClass .
+      }
+      WHERE {
+        ?subject a ?sourceClass .
+        ?sourceClass owl:equivalentClass ?targetClass .
+      }
+
+  # 101. Fix state to history link
+
+  - name: "fix_state_to_history"
+    description: >
+      Retarget BFO_0000132 (occurrent part of) from the entity to its history
+      for all mapped state processes.
+    enabled: true
+    order: 101
+    query: |
+      DELETE {
+        ?state <http://purl.obolibrary.org/obo/BFO_0000132> ?entity .
+      }
+      INSERT {
+        ?state <http://purl.obolibrary.org/obo/BFO_0000132> ?history .
+      }
+      WHERE {
+        VALUES ?entityClass {
+          <http://purl.obolibrary.org/obo/BFO_0000030>
+          <http://purl.obolibrary.org/obo/BFO_0000027>
+          <http://purl.obolibrary.org/obo/BFO_0000040>
+        }
+        ?state  a                                              <http://purl.obolibrary.org/obo/BFO_0000015> .
+        ?state  <http://purl.obolibrary.org/obo/BFO_0000132> ?entity .
+        ?entity a                                              ?entityClass .
+        BIND(IRI(CONCAT(STR(?entity), "_history")) AS ?history)
+        FILTER EXISTS { ?history a <http://purl.obolibrary.org/obo/BFO_0000182> . }
+      }

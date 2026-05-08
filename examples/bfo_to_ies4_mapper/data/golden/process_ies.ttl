@@ -1,0 +1,44 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+data:alice_attendance a ies:EventParticipant ;
+    ies:isParticipantIn data:session_a ;
+    ies:isParticipationOf data:alice .
+
+data:bob_attendance a ies:EventParticipant ;
+    ies:isParticipantIn data:session_a ;
+    ies:isParticipationOf data:bob .
+
+data:carol_attendance a ies:EventParticipant ;
+    ies:isParticipantIn data:conference_2024 ;
+    ies:isParticipationOf data:carol .
+
+data:dave_attendance a ies:EventParticipant ;
+    ies:isParticipantIn data:conference_2024 ;
+    ies:isParticipationOf data:dave .
+
+data:20240115 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2024-01-15"^^xsd:string .
+
+data:alice a ies:Entity .
+
+data:bob a ies:Entity .
+
+data:carol a ies:Entity .
+
+data:dave a ies:Entity .
+
+data:session_a a ies:Event ;
+    rdfs:label "Session A" ;
+    ies:isPartOf data:conference_2024 .
+
+data:session_b a ies:Event ;
+    rdfs:label "Session B" ;
+    ies:isPartOf data:conference_2024 .
+
+data:conference_2024 a ies:Event ;
+    rdfs:label "Annual Conference 2024" ;
+    ies:inPeriod data:20240115 .
+

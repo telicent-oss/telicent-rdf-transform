@@ -1,0 +1,18 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+data:person_a a ies:Person ;
+    ies:hasName data:person_a_name ;
+    ies:isIdentifiedBy data:person_a_identifier ;
+    ies:isRepresentedAs data:person_a_representation .
+
+data:person_a_name a ies:PersonName ;
+    ies:representationValue "Alice Smith"^^xsd:string .
+
+data:person_a_identifier a ies:Identifier ;
+    ies:representationValue "123456789"^^xsd:string .
+
+data:person_a_representation a ies:Representation ;
+    ies:representationValue "Some representation"^^xsd:string .

@@ -1,0 +1,304 @@
+# BFO to IES4 Mapping Configuration
+
+namespaces:
+  ies:  "http://ies.data.gov.uk/ontology/ies4#"
+  obo:  "http://purl.obolibrary.org/obo/"
+  cco:  "https://www.commoncoreontologies.org/"
+  rdf:  "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+  xsd:  "http://www.w3.org/2001/XMLSchema#"
+  owl:  "http://www.w3.org/2002/07/owl#"
+  data: "http://example.org/rdf/data/"
+
+mapping_file: mappings.ttl
+mapping_file_format: text/turtle
+
+queries:
+
+  # 1. BFO_0000132 where child links only to another process
+  #    child is a sub-event, rewrite to ies:isPartOf
+
+  - name: "unmap_occurrent_part_event"
+    description: >
+      A process linked via BFO_0000132 only to another process is a sub-event.
+      Rewrite BFO_0000132 to ies:isPartOf.
+    enabled: true
+    order: 1
+    query: |
+      DELETE {
+        ?child  <http://purl.obolibrary.org/obo/BFO_0000132>  ?parent .
+      }
+      INSERT {
+        ?child  ies:isPartOf  ?parent .
+      }
+      WHERE {
+        ?child  a                                              <http://purl.obolibrary.org/obo/BFO_0000015> .
+        ?child  <http://purl.obolibrary.org/obo/BFO_0000132>  ?parent .
+        ?parent a                                              <http://purl.obolibrary.org/obo/BFO_0000015> .
+        FILTER NOT EXISTS {
+          ?child <http://purl.obolibrary.org/obo/BFO_0000132> ?entity .
+          ?entity a <http://purl.obolibrary.org/obo/BFO_0000030> .
+        }
+      }
+
+  # 2. BFO_0000117 (has occurrent part) between two processes
+  #    rewrite to ies:isPartOf on the child
+
+  - name: "unmap_has_occurrent_part_event"
+    description: >
+      A process linked via BFO_0000117 (has occurrent part) to another process
+      is a sub-event relationship. Rewrite to ies:isPartOf on the child.
+    enabled: true
+    order: 2
+    query: |
+      DELETE {
+        ?parent  <http://purl.obolibrary.org/obo/BFO_0000117>  ?child .
+      }
+      INSERT {
+        ?child  ies:isPartOf  ?parent .
+      }
+      WHERE {
+        ?parent  a                                               <http://purl.obolibrary.org/obo/BFO_0000015> .
+        ?parent  <http://purl.obolibrary.org/obo/BFO_0000117>   ?child .
+        ?child   a                                               <http://purl.obolibrary.org/obo/BFO_0000015> .
+      }
+
+  # 3. BFO_0000139 (occurrent part of) between two processes
+  #    rewrite to ies:isPartOf on the child
+
+  - name: "unmap_occurrent_part_of_event"
+    description: >
+      A process linked via BFO_0000139 (occurrent part of) to another process.
+      Rewrite to ies:isPartOf on the child.
+    enabled: true
+    order: 3
+    query: |
+      DELETE {
+        ?child  <http://purl.obolibrary.org/obo/BFO_0000139>  ?parent .
+      }
+      INSERT {
+        ?child  ies:isPartOf  ?parent .
+      }
+      WHERE {
+        ?child  a                                              <http://purl.obolibrary.org/obo/BFO_0000015> .
+        ?child  <http://purl.obolibrary.org/obo/BFO_0000139>  ?parent .
+        ?parent a                                              <http://purl.obolibrary.org/obo/BFO_0000015> .
+      }
+
+  # 4. BFO_0000121 (has temporal part) between two processes
+  #    rewrite to ies:isPartOf on the child
+
+  - name: "unmap_has_temporal_part_event"
+    description: >
+      A process linked via BFO_0000121 (has temporal part) to another process.
+      Rewrite to ies:isPartOf on the child.
+    enabled: true
+    order: 4
+    query: |
+      DELETE {
+        ?parent  <http://purl.obolibrary.org/obo/BFO_0000121>  ?child .
+      }
+      INSERT {
+        ?child  ies:isPartOf  ?parent .
+      }
+      WHERE {
+        ?parent  <http://purl.obolibrary.org/obo/BFO_0000121>  ?child .
+      }
+
+  # 5. BFO_0000057 (has participant) to IES Participation pattern
+
+  - name: "unmap_has_participant"
+    description: >
+      Convert BFO_0000057 (has participant) into IES participation pattern.
+      Generates _attendance URI for the participant node.
+    enabled: true
+    order: 5
+    query: |
+      DELETE {
+        ?process obo:BFO_0000057 ?entity .
+      }
+      INSERT {
+        ?participation  a                      ies:EventParticipant .
+        ?participation  ies:isParticipationOf  ?entity .
+        ?participation  ies:isParticipantIn    ?process .
+      }
+      WHERE {
+        ?process obo:BFO_0000057 ?entity .
+        BIND(IRI(CONCAT(
+            "http://example.org/rdf/data/",
+            STRAFTER(STR(?entity), "/data/"),
+            "_attendance"
+        )) AS ?participation)
+      }
+
+  # 6. BFO_0000056 (participates in) to IES  participation 
+
+  - name: "unmap_participates_in"
+    description: >
+      Convert BFO_0000056 (participates in) into IES participation pattern.
+      Generates _attendance URI for the participant node.
+    enabled: true
+    order: 6
+    query: |
+      DELETE {
+        ?entity obo:BFO_0000056 ?process .
+      }
+      INSERT {
+        ?participation  a                      ies:EventParticipant .
+        ?participation  ies:isParticipationOf  ?entity .
+        ?participation  ies:isParticipantIn    ?process .
+      }
+      WHERE {
+        ?entity obo:BFO_0000056 ?process .
+        BIND(IRI(CONCAT(
+            "http://example.org/rdf/data/",
+            STRAFTER(STR(?entity), "/data/"),
+            "_attendance"
+        )) AS ?participation)
+      }
+
+  # 7. CCO Designative Name to IES Name pattern
+
+  - name: "unmap_name"
+    description: >
+      Convert CCO Designative Name two-node pattern into IES hasName / Name /
+      representationValue pattern.
+    enabled: true
+    order: 7
+    query: |
+      DELETE {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont00000003> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+      INSERT {
+        ?entity   ies:hasName              ?repNode .
+        ?repNode  a                        ies:Name .
+        ?repNode  ies:representationValue  ?value .
+      }
+      WHERE {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont00000003> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+
+  # 8. CCO Non-Name Identifier to IES Identifier pattern
+
+  - name: "unmap_identifier"
+    description: >
+      Convert CCO Non-Name Identifier two-node pattern into IES isIdentifiedBy /
+      Identifier / representationValue pattern.
+    enabled: true
+    order: 8
+    query: |
+      DELETE {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont00000077> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+      INSERT {
+        ?entity   ies:isIdentifiedBy        ?repNode .
+        ?repNode  a                         ies:Identifier .
+        ?repNode  ies:representationValue   ?value .
+      }
+      WHERE {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont00000077> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+
+  # 9. CCO Designative ICE (generic) to IES Representation pattern
+
+  - name: "unmap_representation"
+    description: >
+      Convert CCO Designative ICE two-node pattern into IES isRepresentedAs /
+      Representation / representationValue pattern.
+    enabled: true
+    order: 9
+    query: |
+      DELETE {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont_00000686> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+      INSERT {
+        ?entity   ies:isRepresentedAs       ?repNode .
+        ?repNode  a                         ies:Representation .
+        ?repNode  ies:representationValue   ?value .
+      }
+      WHERE {
+        ?repNode  a                                                   <https://www.commoncoreontologies.org/ont_00000686> .
+        ?repNode  <http://purl.obolibrary.org/obo/BFO_0000084>       ?ibeNode .
+        ?repNode  <https://www.commoncoreontologies.org/ont_00001916> ?entity .
+        ?ibeNode  a                                                   <https://www.commoncoreontologies.org/ont_00000253> .
+        ?ibeNode  <https://www.commoncoreontologies.org/ont_00001765> ?value .
+      }
+
+  # 10. BFO_0000038 + BFO_0000199 to IES time pattern
+
+  - name: "unmap_temporal_region"
+    description: >
+      Convert BFO one-dimensional temporal region + occupies temporal region
+      into IES ParticularPeriod / inPeriod / iso8601PeriodRepresentation pattern.
+    enabled: true
+    order: 10
+    query: |
+      DELETE {
+        ?process   <http://purl.obolibrary.org/obo/BFO_0000199>  ?oldPeriod .
+        ?oldPeriod a                                               <http://purl.obolibrary.org/obo/BFO_0000038> .
+        ?oldPeriod rdfs:label                                      ?value .
+      }
+      INSERT {
+        ?process    ies:inPeriod                     ?newPeriod .
+        ?newPeriod  a                                ies:ParticularPeriod .
+        ?newPeriod  ies:iso8601PeriodRepresentation  ?strValue .
+      }
+      WHERE {
+        ?process   <http://purl.obolibrary.org/obo/BFO_0000199>  ?oldPeriod .
+        ?oldPeriod a                                               <http://purl.obolibrary.org/obo/BFO_0000038> .
+        ?oldPeriod rdfs:label                                      ?value .
+        BIND(REPLACE(STR(?value), "-", "") AS ?dateStr)
+        BIND(IRI(CONCAT("http://example.org/rdf/data/", ?dateStr)) AS ?newPeriod)
+        BIND(STRDT(STR(?value), xsd:string) AS ?strValue)
+      }
+
+  # 100. Generic property and class mapping (runs last)
+
+  - name: "map_properties_and_classes"
+    description: >
+      Transform BFO classes and properties to IES4 using owl:equivalentClass
+      and owl:equivalentProperty declarations in mappings.ttl.
+    enabled: true
+    order: 100
+    query: |
+      DELETE {
+        ?subject ?sourceProp ?object .
+      }
+      INSERT {
+        ?subject ?targetProp ?object .
+      }
+      WHERE {
+        ?subject ?sourceProp ?object .
+        ?sourceProp owl:equivalentProperty ?targetProp .
+      };
+
+      DELETE {
+        ?subject a ?sourceClass .
+      }
+      INSERT {
+        ?subject a ?targetClass .
+      }
+      WHERE {
+        ?subject a ?sourceClass .
+        ?sourceClass owl:equivalentClass ?targetClass .
+      }

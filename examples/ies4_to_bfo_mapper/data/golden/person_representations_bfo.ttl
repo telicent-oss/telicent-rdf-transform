@@ -1,0 +1,33 @@
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix data: <http://example.org/rdf/data/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+data:person_a_history a obo:BFO_0000182 ;  # History
+    obo:BFO_0000184 data:person_a ;  # history of
+    obo:BFO_0000200 data:person_a_spacetime .  # occupies spatiotemporal region
+
+data:person_a_identifier a cco:ont00000077 ;
+    obo:BFO_0000084 data:person_a_identifier_ibe ;  # generically depends on
+    cco:ont_00001916 data:person_a .  # designates
+
+data:person_a_name a cco:ont00000003 ;
+    obo:BFO_0000084 data:person_a_name_ibe ;  # generically depends on
+    cco:ont_00001916 data:person_a .  # designates
+
+data:person_a_representation a cco:ont_00000686 ;  # Designative Information Content Entity
+    obo:BFO_0000084 data:person_a_representation_ibe ;  # generically depends on
+    cco:ont_00001916 data:person_a .  # designates
+
+data:person_a_identifier_ibe a cco:ont_00000253 ;  # Information Bearing Entity
+    cco:ont_00001765 "123456789"^^xsd:string .  # has text value
+
+data:person_a_name_ibe a cco:ont_00000253 ;  # Information Bearing Entity
+    cco:ont_00001765 "Alice Smith"^^xsd:string .  # has text value
+
+data:person_a_representation_ibe a cco:ont_00000253 ;  # Information Bearing Entity
+    cco:ont_00001765 "Some representation"^^xsd:string .  # has text value
+
+data:person_a_spacetime a obo:BFO_0000011 .  # Spatiotemporal region
+
+data:person_a a obo:BFO_0000030 .  # Object

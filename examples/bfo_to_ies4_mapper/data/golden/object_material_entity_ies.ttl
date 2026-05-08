@@ -1,0 +1,9 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+data:alice a ies:Entity .
+
+data:london_facility a ies:Entity .
+
+data:mobile_phone a ies:Entity .
+

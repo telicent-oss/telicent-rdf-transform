@@ -1,0 +1,280 @@
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ies:  <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix ies:  <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
+
+# All IES4 Event subclasses to BFO process (BFO_0000015)
+
+ies:Event                       owl:equivalentClass obo:BFO_0000015 .
+ies:AccountAdminEvent           owl:equivalentClass obo:BFO_0000015 .
+ies:AgreementExecution          owl:equivalentClass obo:BFO_0000015 .
+ies:AgreementStage              owl:equivalentClass obo:BFO_0000015 .
+ies:Arrest                      owl:equivalentClass obo:BFO_0000015 .
+ies:Assessment                  owl:equivalentClass obo:BFO_0000015 .
+ies:AssessToBeTrue              owl:equivalentClass obo:BFO_0000015 .
+ies:AuthorisationRequest        owl:equivalentClass obo:BFO_0000015 .
+ies:AuthorisationStage          owl:equivalentClass obo:BFO_0000015 .
+ies:BusinessEvent               owl:equivalentClass obo:BFO_0000015 .
+ies:Callee                      owl:equivalentClass obo:BFO_0000015 .
+ies:Caller                      owl:equivalentClass obo:BFO_0000015 .
+ies:CarTravel                   owl:equivalentClass obo:BFO_0000015 .
+ies:ChangeOfGovernment          owl:equivalentClass obo:BFO_0000015 .
+ies:CheckIn                     owl:equivalentClass obo:BFO_0000015 .
+ies:CloseAccount                owl:equivalentClass obo:BFO_0000015 .
+ies:CoLocation                  owl:equivalentClass obo:BFO_0000015 .
+ies:Communication               owl:equivalentClass obo:BFO_0000015 .
+ies:Competition                 owl:equivalentClass obo:BFO_0000015 .
+ies:ConferenceHost              owl:equivalentClass obo:BFO_0000015 .
+ies:ConferenceParticipant       owl:equivalentClass obo:BFO_0000015 .
+ies:Cooperation                 owl:equivalentClass obo:BFO_0000015 .
+ies:Create                      owl:equivalentClass obo:BFO_0000015 .
+ies:CriminalActivity            owl:equivalentClass obo:BFO_0000015 .
+ies:CyberStalking               owl:equivalentClass obo:BFO_0000015 .
+ies:DeclarationOfWar            owl:equivalentClass obo:BFO_0000015 .
+ies:Delivery                    owl:equivalentClass obo:BFO_0000015 .
+ies:DemocraticChangeOfGovernment owl:equivalentClass obo:BFO_0000015 .
+ies:Destroy                     owl:equivalentClass obo:BFO_0000015 .
+ies:Disagreement                owl:equivalentClass obo:BFO_0000015 .
+ies:Election                    owl:equivalentClass obo:BFO_0000015 .
+ies:EndToEndActivity            owl:equivalentClass obo:BFO_0000015 .
+ies:EndToEndAgreement           owl:equivalentClass obo:BFO_0000015 .
+ies:EndToEndAuthorisation       owl:equivalentClass obo:BFO_0000015 .
+ies:EndToEndTransaction         owl:equivalentClass obo:BFO_0000015 .
+ies:EntertainmentEvent          owl:equivalentClass obo:BFO_0000015 .
+ies:Flight                      owl:equivalentClass obo:BFO_0000015 .
+ies:Forgery                     owl:equivalentClass obo:BFO_0000015 .
+ies:FoundOrganisation           owl:equivalentClass obo:BFO_0000015 .
+ies:GrantOfAuthority            owl:equivalentClass obo:BFO_0000015 .
+ies:Hacking                     owl:equivalentClass obo:BFO_0000015 .
+ies:Incarceration               owl:equivalentClass obo:BFO_0000015 .
+ies:InteractiveCommunication    owl:equivalentClass obo:BFO_0000015 .
+ies:IntelligenceOperation       owl:equivalentClass obo:BFO_0000015 .
+ies:Investigation               owl:equivalentClass obo:BFO_0000015 .
+ies:Journey                     owl:equivalentClass obo:BFO_0000015 .
+ies:LawEnforcement              owl:equivalentClass obo:BFO_0000015 .
+ies:LifecycleEvent              owl:equivalentClass obo:BFO_0000015 .
+ies:Logoff                      owl:equivalentClass obo:BFO_0000015 .
+ies:Logon                       owl:equivalentClass obo:BFO_0000015 .
+ies:Marriage                    owl:equivalentClass obo:BFO_0000015 .
+ies:Meeting                     owl:equivalentClass obo:BFO_0000015 .
+ies:Message                     owl:equivalentClass obo:BFO_0000015 .
+ies:MilitaryAttack              owl:equivalentClass obo:BFO_0000015 .
+ies:MilitaryEvent               owl:equivalentClass obo:BFO_0000015 .
+ies:Modify                      owl:equivalentClass obo:BFO_0000015 .
+ies:MoneyTransfer               owl:equivalentClass obo:BFO_0000015 .
+ies:Movement                    owl:equivalentClass obo:BFO_0000015 .
+ies:Negotiation                 owl:equivalentClass obo:BFO_0000015 .
+ies:NonDisclosureAgreement      owl:equivalentClass obo:BFO_0000015 .
+ies:Notify                      owl:equivalentClass obo:BFO_0000015 .
+ies:Observation                 owl:equivalentClass obo:BFO_0000015 .
+ies:OfferForSale                owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineContentCreation       owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineContentEvent          owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineEvent                 owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineMessage               owl:equivalentClass obo:BFO_0000015 .
+ies:OpenAccount                 owl:equivalentClass obo:BFO_0000015 .
+ies:OperationalEvent            owl:equivalentClass obo:BFO_0000015 .
+ies:PartyInCommunication        owl:equivalentClass obo:BFO_0000015 .
+ies:PeaceTreaty                 owl:equivalentClass obo:BFO_0000015 .
+ies:PoliticalAgreement          owl:equivalentClass obo:BFO_0000015 .
+ies:PoliticalAnnouncement       owl:equivalentClass obo:BFO_0000015 .
+ies:PoliticalEvent              owl:equivalentClass obo:BFO_0000015 .
+ies:PolicyAnnouncement          owl:equivalentClass obo:BFO_0000015 .
+ies:Prosecution                 owl:equivalentClass obo:BFO_0000015 .
+ies:Purchase                    owl:equivalentClass obo:BFO_0000015 .
+ies:Ratification                owl:equivalentClass obo:BFO_0000015 .
+ies:Recipient                   owl:equivalentClass obo:BFO_0000015 .
+ies:Reconnaisance               owl:equivalentClass obo:BFO_0000015 .
+ies:RentalAgreement             owl:equivalentClass obo:BFO_0000015 .
+ies:RequestForQuotation         owl:equivalentClass obo:BFO_0000015 .
+ies:Sailing                     owl:equivalentClass obo:BFO_0000015 .
+ies:Sender                      owl:equivalentClass obo:BFO_0000015 .
+ies:SMS                         owl:equivalentClass obo:BFO_0000015 .
+ies:Stalking                    owl:equivalentClass obo:BFO_0000015 .
+ies:Summit                      owl:equivalentClass obo:BFO_0000015 .
+ies:Surveillance                owl:equivalentClass obo:BFO_0000015 .
+ies:TeleConference              owl:equivalentClass obo:BFO_0000015 .
+ies:TerrorAttack                owl:equivalentClass obo:BFO_0000015 .
+ies:TradeAgreement              owl:equivalentClass obo:BFO_0000015 .
+ies:TradeEvent                  owl:equivalentClass obo:BFO_0000015 .
+ies:TrainTravel                 owl:equivalentClass obo:BFO_0000015 .
+ies:Transit                     owl:equivalentClass obo:BFO_0000015 .
+ies:TravelBooking               owl:equivalentClass obo:BFO_0000015 .
+ies:TravelService               owl:equivalentClass obo:BFO_0000015 .
+ies:Treaty                      owl:equivalentClass obo:BFO_0000015 .
+ies:UpdateAccount               owl:equivalentClass obo:BFO_0000015 .
+ies:VideoConference             owl:equivalentClass obo:BFO_0000015 .
+ies:VoiceCall                   owl:equivalentClass obo:BFO_0000015 .
+ies:War                         owl:equivalentClass obo:BFO_0000015 .
+ies:Warrantry                   owl:equivalentClass obo:BFO_0000015 .
+ies:WithdrawFromSale            owl:equivalentClass obo:BFO_0000015 .
+
+
+# States to BFO process (BFO_0000015)
+ies:State                       owl:equivalentClass obo:BFO_0000015 . # process
+ies:AccountHolder               owl:equivalentClass obo:BFO_0000015 .
+ies:AccountState                owl:equivalentClass obo:BFO_0000015 .
+ies:ActorState                  owl:equivalentClass obo:BFO_0000015 .
+ies:Arrival                     owl:equivalentClass obo:BFO_0000015 .
+ies:AssetState                  owl:equivalentClass obo:BFO_0000015 .
+ies:BirthState                  owl:equivalentClass obo:BFO_0000015 .
+ies:BoundingState               owl:equivalentClass obo:BFO_0000015 .
+ies:CommunicationsAccountState  owl:equivalentClass obo:BFO_0000015 .
+ies:ContinuousState             owl:equivalentClass obo:BFO_0000015 .
+ies:CriminalOrganisation        owl:equivalentClass obo:BFO_0000015 .
+ies:DeathState                  owl:equivalentClass obo:BFO_0000015 .
+ies:Departure                   owl:equivalentClass obo:BFO_0000015 .
+ies:DeviceState                 owl:equivalentClass obo:BFO_0000015 .
+ies:DiscontinuousState          owl:equivalentClass obo:BFO_0000015 .
+ies:Dislikes                    owl:equivalentClass obo:BFO_0000015 .
+ies:EventState                  owl:equivalentClass obo:BFO_0000015 .
+ies:Hates                       owl:equivalentClass obo:BFO_0000015 .
+ies:InPost                      owl:equivalentClass obo:BFO_0000015 .
+ies:InstalledState              owl:equivalentClass obo:BFO_0000015 .
+ies:Interested                  owl:equivalentClass obo:BFO_0000015 .
+ies:Likes                       owl:equivalentClass obo:BFO_0000015 .
+ies:LocationState               owl:equivalentClass obo:BFO_0000015 .
+ies:Loves                       owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineAccountState          owl:equivalentClass obo:BFO_0000015 .
+ies:OrganisationState           owl:equivalentClass obo:BFO_0000015 .
+ies:Parked                      owl:equivalentClass obo:BFO_0000015 .
+ies:PersonState                 owl:equivalentClass obo:BFO_0000015 .
+ies:PostState                   owl:equivalentClass obo:BFO_0000015 .
+ies:ReligionState               owl:equivalentClass obo:BFO_0000015 .
+ies:ResponsibleActorState       owl:equivalentClass obo:BFO_0000015 .
+ies:State                       owl:equivalentClass obo:BFO_0000015 .
+ies:SubjectOfInterest           owl:equivalentClass obo:BFO_0000015 .
+ies:SystemState                 owl:equivalentClass obo:BFO_0000015 .
+ies:TerroristOrganisation       owl:equivalentClass obo:BFO_0000015 .
+ies:UsuallyParked               owl:equivalentClass obo:BFO_0000015 .
+ies:VehicleState                owl:equivalentClass obo:BFO_0000015 .
+ies:WebResourceState            owl:equivalentClass obo:BFO_0000015 .
+
+
+# Participations to BFO process
+ies:EventParticipant                 owl:equivalentClass obo:BFO_0000015 . # process
+ies:AccountInCommunication      owl:equivalentClass obo:BFO_0000015 .
+ies:Accused                     owl:equivalentClass obo:BFO_0000015 .
+ies:ActiveEventParticipant      owl:equivalentClass obo:BFO_0000015 .
+ies:AdministeredAccount         owl:equivalentClass obo:BFO_0000015 .
+ies:Arrested                    owl:equivalentClass obo:BFO_0000015 .
+ies:ArrestingOfficer            owl:equivalentClass obo:BFO_0000015 .
+ies:Assessor                    owl:equivalentClass obo:BFO_0000015 .
+ies:AtWar                       owl:equivalentClass obo:BFO_0000015 .
+ies:Attacker                    owl:equivalentClass obo:BFO_0000015 .
+ies:Attendance                  owl:equivalentClass obo:BFO_0000015 .
+ies:AuthorisationRequester      owl:equivalentClass obo:BFO_0000015 .
+ies:AuthorisationReviewer       owl:equivalentClass obo:BFO_0000015 .
+ies:AuthorisedActor             owl:equivalentClass obo:BFO_0000015 .
+ies:Authoriser                  owl:equivalentClass obo:BFO_0000015 .
+ies:BookedPassenger             owl:equivalentClass obo:BFO_0000015 .
+ies:BookingAgent                owl:equivalentClass obo:BFO_0000015 .
+ies:BookingPayment              owl:equivalentClass obo:BFO_0000015 .
+ies:CardUsed                    owl:equivalentClass obo:BFO_0000015 .
+ies:Carrier                     owl:equivalentClass obo:BFO_0000015 .
+ies:CashPayment                 owl:equivalentClass obo:BFO_0000015 .
+ies:Casualty                    owl:equivalentClass obo:BFO_0000015 .
+ies:Competitor                  owl:equivalentClass obo:BFO_0000015 .
+ies:Cooperator                  owl:equivalentClass obo:BFO_0000015 .
+ies:Created                     owl:equivalentClass obo:BFO_0000015 .
+ies:CreatedContent              owl:equivalentClass obo:BFO_0000015 .
+ies:Creator                     owl:equivalentClass obo:BFO_0000015 .
+ies:Customer                    owl:equivalentClass obo:BFO_0000015 .
+ies:DeclaredTarget              owl:equivalentClass obo:BFO_0000015 .
+ies:DeclaringParty              owl:equivalentClass obo:BFO_0000015 .
+ies:DeliveryAddress             owl:equivalentClass obo:BFO_0000015 .
+ies:DeliveryRecipient           owl:equivalentClass obo:BFO_0000015 .
+ies:Destroyed                   owl:equivalentClass obo:BFO_0000015 .
+ies:Destroyer                   owl:equivalentClass obo:BFO_0000015 .
+ies:DeviceInCommunication       owl:equivalentClass obo:BFO_0000015 .
+ies:DeviceOnline                owl:equivalentClass obo:BFO_0000015 .
+ies:ElectoralCandidate          owl:equivalentClass obo:BFO_0000015 .
+ies:ElectoralRegion             owl:equivalentClass obo:BFO_0000015 .
+ies:EntityInTransit             owl:equivalentClass obo:BFO_0000015 .
+ies:EventParticipant            owl:equivalentClass obo:BFO_0000015 .
+ies:EvidentialPhotograph        owl:equivalentClass obo:BFO_0000015 .
+ies:IdUsedInCheckIn             owl:equivalentClass obo:BFO_0000015 .
+ies:InDisagreement              owl:equivalentClass obo:BFO_0000015 .
+ies:InResidence                 owl:equivalentClass obo:BFO_0000015 .
+ies:InWork                      owl:equivalentClass obo:BFO_0000015 .
+ies:InWorship                   owl:equivalentClass obo:BFO_0000015 .
+ies:IncarceratingOrganisation   owl:equivalentClass obo:BFO_0000015 .
+ies:IncomingGovernment          owl:equivalentClass obo:BFO_0000015 .
+ies:IncumbentRepresentative     owl:equivalentClass obo:BFO_0000015 .
+ies:Investigator                owl:equivalentClass obo:BFO_0000015 .
+ies:LeadInvestigator            owl:equivalentClass obo:BFO_0000015 .
+ies:MaliciousAccountUse         owl:equivalentClass obo:BFO_0000015 .
+ies:Married                     owl:equivalentClass obo:BFO_0000015 .
+ies:MeetingChair                owl:equivalentClass obo:BFO_0000015 .
+ies:Modifier                    owl:equivalentClass obo:BFO_0000015 .
+ies:Moving                      owl:equivalentClass obo:BFO_0000015 .
+ies:Negotiator                  owl:equivalentClass obo:BFO_0000015 .
+ies:Observed                    owl:equivalentClass obo:BFO_0000015 .
+ies:Observer                    owl:equivalentClass obo:BFO_0000015 .
+ies:ObserverStatus              owl:equivalentClass obo:BFO_0000015 .
+ies:OnJourney                   owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineAccountInUse          owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineArtefactInEvent       owl:equivalentClass obo:BFO_0000015 .
+ies:OnlineShop                  owl:equivalentClass obo:BFO_0000015 .
+ies:Operator                    owl:equivalentClass obo:BFO_0000015 .
+ies:OutgoingGovernment          owl:equivalentClass obo:BFO_0000015 .
+ies:PartyToAgreement            owl:equivalentClass obo:BFO_0000015 .
+ies:Passenger                   owl:equivalentClass obo:BFO_0000015 .
+ies:Perpetrator                 owl:equivalentClass obo:BFO_0000015 .
+ies:PersonInCommunication       owl:equivalentClass obo:BFO_0000015 .
+ies:PersonInTransit             owl:equivalentClass obo:BFO_0000015 .
+ies:Presence                    owl:equivalentClass obo:BFO_0000015 .
+ies:Prisoner                    owl:equivalentClass obo:BFO_0000015 .
+ies:Prosecutor                  owl:equivalentClass obo:BFO_0000015 .
+ies:Purchaser                   owl:equivalentClass obo:BFO_0000015 .
+ies:ReceivingAccount            owl:equivalentClass obo:BFO_0000015 .
+ies:RentalProvider              owl:equivalentClass obo:BFO_0000015 .
+ies:Rented                      owl:equivalentClass obo:BFO_0000015 .
+ies:Renter                      owl:equivalentClass obo:BFO_0000015 .
+ies:Retailer                    owl:equivalentClass obo:BFO_0000015 .
+ies:SendingAccount              owl:equivalentClass obo:BFO_0000015 .
+ies:ServiceProvider             owl:equivalentClass obo:BFO_0000015 .
+ies:ServiceUser                 owl:equivalentClass obo:BFO_0000015 .
+ies:Signatory                   owl:equivalentClass obo:BFO_0000015 .
+ies:Socialising                 owl:equivalentClass obo:BFO_0000015 .
+ies:SubjectOfOperation          owl:equivalentClass obo:BFO_0000015 .
+ies:Supplier                    owl:equivalentClass obo:BFO_0000015 .
+ies:SurveillanceWarrant         owl:equivalentClass obo:BFO_0000015 .
+ies:TargetLocation              owl:equivalentClass obo:BFO_0000015 .
+ies:TicketUsedInCheckIn         owl:equivalentClass obo:BFO_0000015 .
+ies:TradedAsset                 owl:equivalentClass obo:BFO_0000015 .
+ies:TravelLeg                   owl:equivalentClass obo:BFO_0000015 .
+ies:TravelReservation           owl:equivalentClass obo:BFO_0000015 .
+ies:VehicleController           owl:equivalentClass obo:BFO_0000015 .
+ies:VehicleUsed                 owl:equivalentClass obo:BFO_0000015 .
+ies:Victim                      owl:equivalentClass obo:BFO_0000015 .
+ies:Visiting                    owl:equivalentClass obo:BFO_0000015 .
+ies:VotingAttendee              owl:equivalentClass obo:BFO_0000015 .
+ies:WeaponLocation              owl:equivalentClass obo:BFO_0000015 .
+ies:WinningCandidate            owl:equivalentClass obo:BFO_0000015 .
+ies:Witness                     owl:equivalentClass obo:BFO_0000015 .
+
+# Properties
+ies:isParticipantIn
+    owl:equivalentProperty obo:BFO_0000056 . # participates in
+
+ies:isParticipationOf
+    owl:equivalentProperty obo:BFO_0000132 . # occurent part of
+
+ies:inLocation
+    owl:equivalentProperty obo:BFO_0000082 . # located in at all times
+
+ies:isStateOf
+    owl:equivalentProperty obo:BFO_0000132 . # occurent part of
+
+# will only work for events and states
+ies:isPartOf
+    owl:equivalentProperty obo:BFO_0000132 . # occurent part of
+
+ies:inPeriod
+    owl:equivalentProperty obo:BFO_0000066 . # occurs in
