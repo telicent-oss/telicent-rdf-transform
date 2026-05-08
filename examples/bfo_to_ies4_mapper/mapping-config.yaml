@@ -131,7 +131,7 @@ queries:
         )) AS ?participation)
       }
 
-  # 6. BFO_0000056 (participates in) to IES reified Participant node
+  # 6. BFO_0000056 (participates in) to IES  participation 
 
   - name: "unmap_participates_in"
     description: >

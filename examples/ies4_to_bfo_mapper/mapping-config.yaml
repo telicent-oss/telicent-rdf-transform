@@ -330,7 +330,7 @@ queries:
         FILTER EXISTS { ?history a <http://purl.obolibrary.org/obo/BFO_0000182> . }
       }
 
-  # 7a. Temporal period node rewrite to BFO one-dimensional temporal region
+  # 7a. ParticularPeriod period node rewrite to BFO one-dimensional temporal region
 
   - name: "map_period_node"
     description: >
