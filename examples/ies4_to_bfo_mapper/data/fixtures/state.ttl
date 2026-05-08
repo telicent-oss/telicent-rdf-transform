@@ -1,0 +1,14 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+
+data:person_a a ies:Person .
+
+data:person_state_a a ies:PersonState ;
+    ies:isStateOf data:person_a .
+
+data:car_a a ies:RoadVehicle .
+
+data:car_a_parked a ies:Parked ;
+    ies:isStateOf data:car_a .

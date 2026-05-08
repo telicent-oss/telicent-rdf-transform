@@ -1,0 +1,40 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Scenario 1: Alice attends a conference 
+
+data:alice              a    obo:BFO_0000030 ;  # object
+           obo:BFO_0000056    data:session_a .  # participates in
+
+data:conference_2024    a    obo:BFO_0000015 ;  # process (event)
+    rdfs:label          "Annual Conference 2024" ;
+    obo:BFO_0000199     data:conference_time ; #occupies temporal region
+    obo:BFO_0000121     data:session_b .  # has occurent part
+
+data:conference_time    a    obo:BFO_0000038 ;  # one-dimensional temporal region
+    rdfs:label          "2024-01-15"^^xsd:date .
+
+# Scenario 2: Bob attends a session which is part of the conference
+
+data:bob                a    obo:BFO_0000030 ;  # object
+        obo:BFO_0000056     data:session_a .   # participates in
+
+data:session_a          a    obo:BFO_0000015 ;  # process (event, part of conference)
+    rdfs:label          "Session A" ;
+    obo:BFO_0000132     data:conference_2024 .  # occurent part of conference
+
+data:session_b          a    obo:BFO_0000015 ;  # process (event, part of conference)
+    rdfs:label          "Session B" .
+
+
+# Scenario 3: Carol participates via BFO_0000056 
+
+data:carol              a    obo:BFO_0000030 ;  # object
+            obo:BFO_0000056    data:conference_2024 .  # participates in 
+
+# Scenario 4: Dave via inverse BFO_0000057 has participant
+
+data:dave               a    obo:BFO_0000030 .  # object
+data:conference_2024    obo:BFO_0000057    data:dave .  # has participant

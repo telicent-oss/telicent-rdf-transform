@@ -1,0 +1,18 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+data:alice a ies:Entity ;
+    ies:hasName data:alice_name ;
+    ies:isIdentifiedBy data:alice_id ;
+    ies:isRepresentedAs data:alice_rep .
+
+data:alice_id a ies:Identifier ;
+    ies:representationValue "ID-123456"^^xsd:string .
+
+data:alice_name a ies:Name ;
+    ies:representationValue "Alice Smith"^^xsd:string .
+
+data:alice_rep a ies:Representation ;
+    ies:representationValue "Some representation"^^xsd:string .
+

@@ -1,0 +1,8 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+data:person_a a ies:Person ;
+    rdfs:label "Person A"^^xsd:string .

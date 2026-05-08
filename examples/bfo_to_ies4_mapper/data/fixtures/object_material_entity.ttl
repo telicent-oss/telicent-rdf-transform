@@ -1,0 +1,11 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Object — self-contained, causally unified material entity
+data:alice              a    obo:BFO_0000030 .  # object
+data:mobile_phone       a    obo:BFO_0000030 .  # object
+
+# Material entity — physical but not necessarily self-contained or causally unified
+data:london_facility    a    obo:BFO_0000040 .  # material entity
+

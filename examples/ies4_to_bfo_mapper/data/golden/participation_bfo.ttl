@@ -1,0 +1,16 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+
+data:participant_a a obo:BFO_0000015 ;  # Process
+    obo:BFO_0000132 data:event_a ;  # is occcurrent part of event_a
+    obo:BFO_0000132 data:person_a_history .  # occurrent part of
+
+data:event_a a obo:BFO_0000015 .  # Process
+
+data:person_a a obo:BFO_0000030 .  # Object
+
+data:person_a_history a obo:BFO_0000182 ;  # History
+    obo:BFO_0000184 data:person_a ;  # history of
+    obo:BFO_0000200 data:person_a_spacetime .  # occupies spatiotemporal region
+
+data:person_a_spacetime a obo:BFO_0000011 .  # Spatiotemporal region

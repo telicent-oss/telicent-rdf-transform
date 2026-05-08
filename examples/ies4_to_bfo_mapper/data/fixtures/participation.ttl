@@ -1,0 +1,11 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+
+
+data:person_a a ies:Person .
+
+data:participant_a a ies:EventParticipant ;
+    ies:isParticipationOf data:person_a ;
+    ies:isParticipantIn data:event_a .
+
+data:event_a a ies:Event .

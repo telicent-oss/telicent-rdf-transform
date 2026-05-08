@@ -1,0 +1,14 @@
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ies:  <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
+
+# Classes
+obo:BFO_0000030  owl:equivalentClass  ies:Entity .  # object -> Entity
+obo:BFO_0000027  owl:equivalentClass  ies:Entity .  # object aggregate -> Entity
+obo:BFO_0000040  owl:equivalentClass  ies:Entity .  # material entity -> Entity
+obo:BFO_0000015  owl:equivalentClass  ies:Event .   # process -> Event
+
+

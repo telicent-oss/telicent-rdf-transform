@@ -1,0 +1,24 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+
+data:car_a_parked a obo:BFO_0000015 ;  # Process
+    obo:BFO_0000132 data:car_a_history .  # occurrent part of
+
+data:person_state_a a obo:BFO_0000015 ;  # Process
+    obo:BFO_0000132 data:person_a_history .  # occurrent part of
+
+data:car_a a obo:BFO_0000030 .  # Object
+
+data:car_a_history a obo:BFO_0000182 ;  # History
+    obo:BFO_0000184 data:car_a ;  # history of
+    obo:BFO_0000200 data:car_a_spacetime .  # occupies spatiotemporal region
+
+data:car_a_spacetime a obo:BFO_0000011 .  # Spatiotemporal region
+
+data:person_a a obo:BFO_0000030 .  # Object
+
+data:person_a_history a obo:BFO_0000182 ;  # History
+    obo:BFO_0000184 data:person_a ;  # history of
+    obo:BFO_0000200 data:person_a_spacetime .  # occupies spatiotemporal region
+
+data:person_a_spacetime a obo:BFO_0000011 .  # Spatiotemporal region
