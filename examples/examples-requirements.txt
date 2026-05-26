@@ -1,6 +1,0 @@
-# Dependencies needed for running mappers in examples folder 
-
-telicent-lib==6.*
-telicent-label-builder==0.*
-python-dotenv==1.2.*
-rdflib==7.*
