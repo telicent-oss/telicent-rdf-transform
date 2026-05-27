@@ -12,10 +12,8 @@ requires-python = ">=3.12"
 license = {file = "LICENSE"}
 dependencies = [
     "python-dotenv==1.2.*",
-    "telicent-lib==6.*",
     "pyyaml==6.*",
-    "rdflib==7.*",
-    "telicent-label-builder==0.*"
+    "rdflib==7.*"
 ]
 classifiers = [
     'Programming Language :: Python :: 3.12',
@@ -41,7 +39,7 @@ dev = [
     # Add any dependencies specific to build/testing.
     # This block does not get installed in any of the final Docker images.
 ]
-telicent_mapper = []
+telicent_mapper = ["telicent-lib==6.*", "telicent-label-builder==0.*"]
 rdf_transform = []
 
 [tool.ruff]
