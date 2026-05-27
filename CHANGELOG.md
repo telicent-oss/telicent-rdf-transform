@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/telicent-oss/telicent-rdf-transform/compare/v0.1.0...v0.2.0) (2026-05-27)
+
+
+### Features
+
+* add ies-bfo mappings ([15fe03f](https://github.com/telicent-oss/telicent-rdf-transform/commit/15fe03fb212ba2103f108a2a4cd1ffef9bed3e44))
+
+
+### Miscellaneous
+
+* moved telicent_mapper dependencies into optional-dependencies section ([12a9dca](https://github.com/telicent-oss/telicent-rdf-transform/commit/12a9dca766a5ab34d195542be28102a2343bdf65))
+* moved telicent-lib and label-builder dependencies out of toml ([0ef735b](https://github.com/telicent-oss/telicent-rdf-transform/commit/0ef735be438f187428a392f95204e3e553fad936))
+
 ## 0.1.0 (2026-04-23)
 
 
