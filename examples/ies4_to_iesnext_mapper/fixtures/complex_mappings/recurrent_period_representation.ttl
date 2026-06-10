@@ -1,0 +1,72 @@
+@prefix data: <http://example.org/rdf/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix iso8601: <http://iso.org/iso8601#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+# an event that occurs daily at 8am with start no end
+data:meeting_001 a ies:Meeting ;
+    ies:inPeriod data:daily_at_8 .
+
+iso8601:20260401T0800 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2026-04-01T08:00"^^xsd:string .
+
+data:daily_at_8 a ies:RecurringPeriod ;
+    ies:startsIn iso8601:20260401T0800 ;
+    ies:recurrentPeriodRepresentation "????-??-??T08:00"^^xsd:string .
+
+# an event that occurs once a year with no start or end
+data:christmas_day a ies:Event ;
+    ies:inPeriod data:once_a_year .
+
+data:once_a_year a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-12-25"^^xsd:string .
+
+# an event that occurs once a month with unknown start and known end
+data:payday_001 a ies:Event ;
+    ies:inPeriod data:once_a_month_001 .
+
+iso8601:20270101 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2027-01-01"^^xsd:string .
+
+data:once_a_month_001 a ies:RecurringPeriod ;
+    ies:endsIn iso8601:20270101 ;
+    ies:recurrentPeriodRepresentation "????-??-28"^^xsd:string .
+
+# an event that occurs once a month with start and end
+data:monthly_meeting_001 a ies:Meeting ;
+    ies:inPeriod data:once_a_month_002 .
+
+iso8601:20260101 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2026-01-01"^^xsd:string .
+
+iso8601:20271201 a ies:ParticularPeriod ;
+    ies:iso8601PeriodRepresentation "2027-12-01"^^xsd:string .
+
+data:once_a_month_002 a ies:RecurringPeriod ;
+    ies:startsIn iso8601:20260101 ;
+    ies:endsIn iso8601:20271201 ;
+    ies:recurrentPeriodRepresentation "????-??-01"^^xsd:string .
+
+# occurrence once an hour on the 15th minute
+data:event_001 a ies:Event ;
+    ies:inPeriod data:every_15th_minute .
+
+data:every_15th_minute a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T??:15:00"^^xsd:string .
+
+# an event that occurs every minute on the first second - clock ticking
+data:clock_tick a ies:Event ;
+    ies:inPeriod data:every_minute .
+
+data:every_minute a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T??:??:01"^^xsd:string .
+
+# an event that occurs every second on the 5th milliseconds
+data:quick_spin a ies:Event ;
+    ies:inPeriod data:every_second .
+
+data:every_second a ies:RecurringPeriod ;
+    ies:recurrentPeriodRepresentation "????-??-??T??:??:00.005"^^xsd:string .
