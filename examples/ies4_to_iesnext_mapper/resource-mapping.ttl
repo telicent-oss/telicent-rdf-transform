@@ -713,7 +713,6 @@ ies:natureOfInterest owl:equivalentClass ies_social:ProfessionalInterest .
 ies:nearTo owl:equivalentClass ies_core:CoLocation .
 ies:nextTo owl:equivalentClass ies_core:CoLocation .
 ies:onlineServiceProvider owl:equivalentClass ies_core:Account .
-ies:owns owl:equivalentClass ies_core:LegalOwnership .
 ies:paymentArtefactProvider owl:equivalentClass ies_core:Account .
 ies:postModificationState owl:equivalentClass ies_top:State .
 ies:preModificationState owl:equivalentClass ies_top:State .
