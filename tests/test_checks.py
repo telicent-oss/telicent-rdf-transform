@@ -191,6 +191,29 @@ class TestRunChecks(unittest.TestCase):
             run_checks(self.output, None, _config(checks=[check]))
         self.assertIn("needs_mapping", str(raised.exception))
 
+    def test_graph_clause_inside_filter_exists_counts_too(self) -> None:
+        check = {
+            "name": "needs_mapping",
+            "message": "{subject}",
+            "query": "SELECT ?subject WHERE { ?subject ?p ?o . FILTER EXISTS { GRAPH ?g { ?o ?q ?t } } }",
+        }
+        with self.assertRaises(ValueError) as raised:
+            run_checks(self.output, None, _config(checks=[check]))
+        self.assertIn("needs_mapping", str(raised.exception))
+
+    def test_graph_clause_nested_in_two_filter_exists_counts_too(self) -> None:
+        check = {
+            "name": "needs_mapping",
+            "message": "{subject}",
+            "query": (
+                "SELECT ?subject WHERE { ?subject ?p ?o . "
+                "FILTER EXISTS { ?o ?q ?t . FILTER EXISTS { GRAPH ?g { ?t ?r ?u } } } }"
+            ),
+        }
+        with self.assertRaises(ValueError) as raised:
+            run_checks(self.output, None, _config(checks=[check]))
+        self.assertIn("needs_mapping", str(raised.exception))
+
     def test_graph_name_in_a_comment_does_not_count(self) -> None:
         check = {
             "name": "no_graph",

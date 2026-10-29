@@ -373,11 +373,21 @@ def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperC
 
 
 def _reads_named_graph(node: object) -> bool:
-    """Whether a parsed query contains a GRAPH clause, naming the graph or using a variable."""
+    """Whether a parsed query contains a GRAPH clause, naming the graph or using a variable.
+
+    rdflib keeps the pattern inside EXISTS and NOT EXISTS twice: the raw parse tree, with its
+    filters removed, under the node's "graph" key, and the translated pattern in the instance
+    attribute of the same name. Both are walked so a GRAPH clause nested inside a filter counts.
+    """
     if isinstance(node, CompValue):
-        return node.name == "Graph" or any(_reads_named_graph(value) for value in node.values())
+        if node.name in {"Graph", "GraphGraphPattern"}:
+            return True
+        children = list(node.values())
+        if node.name in {"Builtin_EXISTS", "Builtin_NOTEXISTS"}:
+            children.append(vars(node).get("graph"))
+        return any(_reads_named_graph(child) for child in children)
     if isinstance(node, list | tuple):
-        return any(_reads_named_graph(value) for value in node)
+        return any(_reads_named_graph(child) for child in node)
     return False
 
 
