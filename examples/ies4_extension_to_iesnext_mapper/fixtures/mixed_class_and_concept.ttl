@@ -1,0 +1,21 @@
+# A class with its own attribute, and a taxonomy entry under it. ont:Submarine is the domain of
+# a local attribute, so it stays a class. ont:NuclearSubmarine adds nothing new, so it becomes a concept.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:Submarine a rdfs:Class ;
+    rdfs:subClassOf ies:Vehicle ;
+    rdfs:label "Submarine" .
+
+ont:maximumDivingDepth a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ies:attribute ;
+    rdfs:domain ont:Submarine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "maximum diving depth" .
+
+ont:NuclearSubmarine a rdfs:Class ;
+    rdfs:subClassOf ont:Submarine ;
+    rdfs:label "Nuclear Submarine" .

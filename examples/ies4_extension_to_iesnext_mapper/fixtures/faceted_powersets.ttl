@@ -1,0 +1,27 @@
+# Faceted classification with powersets (extending-ies.md, "Complex Extensions"). IES 4.3 has
+# no ies:ClassOfDevice; the powerset hierarchy hangs off ies:ClassOfAsset, the powerset of ies:Asset.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:ClassOfShip a rdfs:Class,
+        ies:ClassOfClassOfEntity ;
+    rdfs:subClassOf ies:ClassOfAsset .
+
+ont:ClassOfFunctionalUseOfShip a rdfs:Class ;
+    rdfs:subClassOf ont:ClassOfShip .
+
+ont:ClassOfPoweredShip a rdfs:Class ;
+    rdfs:subClassOf ont:ClassOfShip .
+
+ont:PassengerShip a ont:ClassOfFunctionalUseOfShip ;
+    rdfs:subClassOf ies:Ship .
+
+ont:CargoShip a ont:ClassOfFunctionalUseOfShip ;
+    rdfs:subClassOf ies:Ship .
+
+ont:WindPoweredShip a ont:ClassOfPoweredShip ;
+    rdfs:subClassOf ies:Ship .
+
+ont:NuclearPoweredShip a ont:ClassOfPoweredShip ;
+    rdfs:subClassOf ies:Ship .

@@ -1,0 +1,18 @@
+# New local classes extending an IES4 class (extending-ies.md, "Defining New Local Classes").
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ies_tport: <http://purl.org/ies/tport/v0/ont/> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:PassengerShip a skos:Concept ;
+    skos:broader ies_tport:Ship ;
+    rdfs:label "Passenger Ship" ;
+    rdfs:comment "A ship whose primary function is carrying passengers." .
+
+ont:CargoShip a skos:Concept ;
+    skos:broader ies_tport:Ship ;
+    rdfs:label "Cargo Ship" .
+
+ont:ContainerShip a skos:Concept ;
+    skos:broader ont:CargoShip ;
+    rdfs:label "Container Ship" .

@@ -1,0 +1,11 @@
+# The attribute example from extending-ies.md. In IES-Next the ies:confidence attribute is
+# replaced by the ies_sec:AssessToBeTrue class pattern, so there is no property to map to.
+# A check should reject it.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:ragConfidence a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ies:confidence ;
+    rdfs:domain ies:AssessToBeTrue .
