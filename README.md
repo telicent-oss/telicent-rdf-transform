@@ -199,6 +199,16 @@ A work-in-progress configuration for transforming IES4 ontology data to IES Next
 
 See [examples/ies4_to_iesnext_mapper/](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples/ies4_to_iesnext_mapper) for the configuration and test files.
 
+### ies4_extension_to_iesnext_mapper
+
+Ports ontology extensions written against IES4 to IES Next. Local classes that only add a narrower kind of an existing thing become SKOS concepts, local powersets become SKOS collections, and classes that carry their own relationships or attributes, or are typed with an IES4 class, stay RDFS classes, as the IES-Core documentation describes. Every IES4 term is then replaced with its IES Next equivalent. Not every extension can be mapped: the example's README lists the cases the mapper turns away, such as a class placed under an IES4 class that is a SKOS concept in IES Next.
+
+```bash
+python examples/ies4_extension_to_iesnext_mapper/run.py my_extension.ttl my_extension_iesnext.ttl
+```
+
+See [examples/ies4_extension_to_iesnext_mapper/README.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/examples/ies4_extension_to_iesnext_mapper/README.md) for details.
+
 ### telicent_mapper
 
 To be used with the [Telicent CORE](https://telicent.io/the-core-platform/) platform for real-time transformation of RDF streams.
