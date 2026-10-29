@@ -132,11 +132,19 @@ class TestRunChecks(unittest.TestCase):
         }
         self.assertEqual(run_checks(self.output, None, _config(checks=[check])), ["ex:a has label UNDEF"])
 
-    def test_mapping_graph_is_a_named_graph_and_not_in_the_default_graph(self) -> None:
+    def test_mapping_graph_is_not_in_the_default_graph(self) -> None:
         mapping = Graph()
         mapping.add((OLD.Thing, OWL.equivalentClass, EX.Thing))
-        self.assertEqual(run_checks(self.output, mapping, _config()), [])
+        check = {
+            "name": "mapping_entries_leaked",
+            "message": "{subject} is a mapping entry",
+            "query": "SELECT ?subject WHERE { ?subject owl:equivalentClass ?target }",
+        }
+        self.assertEqual(run_checks(self.output, mapping, _config(checks=[check])), [])
 
+    def test_mapping_graph_is_readable_by_name(self) -> None:
+        mapping = Graph()
+        mapping.add((OLD.Thing, OWL.equivalentClass, EX.Thing))
         self.output.add((EX.b, RDF.type, OLD.Thing))
         check = {
             "name": "mapped_old_terms",
@@ -153,6 +161,24 @@ class TestRunChecks(unittest.TestCase):
         }
         self.assertEqual(
             run_checks(self.output, mapping, _config(checks=[check])), ["old:Thing should have become ex:Thing"]
+        )
+
+    def test_check_that_reads_the_mapping_graph_needs_one(self) -> None:
+        check = {
+            "name": "needs_mapping",
+            "message": "{subject}",
+            "query": "SELECT ?subject WHERE { GRAPH <urn:rdf-transform:mapping> { ?subject ?p ?o } }",
+        }
+        with self.assertRaises(ValueError) as raised:
+            run_checks(self.output, None, _config(checks=[check]))
+        self.assertIn("needs_mapping", str(raised.exception))
+
+    def test_configured_prefix_wins_over_rdflib_default(self) -> None:
+        schema = Namespace("http://schema.org/")
+        self.output.add((schema.alice, RDF.type, OLD.Thing))
+        config = _config(namespaces=dict(NAMESPACES, schema=str(schema)))
+        self.assertEqual(
+            run_checks(self.output, None, config), ["schema:alice rdf:type old:Thing .: old:Thing is still an old term"]
         )
 
     def test_messages_follow_check_order(self) -> None:

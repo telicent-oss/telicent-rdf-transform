@@ -336,16 +336,25 @@ def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperC
 
     Returns:
         One rendered message per failing row, in check order and sorted within each check
+
+    Raises:
+        ValueError: If a check reads the mapping graph but no mapping graph was supplied
     """
     if not config.checks:
         return []
 
+    reads_mapping = [check for check in config.checks if str(MAPPING_GRAPH_NAME) in check.query]
+    if reads_mapping and mapping_graph is None:
+        names = [check.name for check in reads_mapping]
+        raise ValueError(f"Checks {names} read the mapping graph, but no mapping graph was supplied")
+
     dataset = Dataset()
     for prefix, uri in config.namespaces.items():
-        dataset.bind(prefix, uri)
+        dataset.bind(prefix, uri, replace=True)
     for triple in output_graph:
-        dataset.default_graph.add(triple)
-    if mapping_graph is not None:
+        dataset.add(triple)
+    if reads_mapping:
+        assert mapping_graph is not None
         named = dataset.graph(MAPPING_GRAPH_NAME)
         for triple in mapping_graph:
             named.add(triple)
