@@ -4,14 +4,14 @@ This module contains the core SPARQL CONSTRUCT transformation logic
 separated from the Kafka/Record infrastructure layer.
 """
 
-import string
 import time
 
 from rdflib import Dataset, Graph, URIRef
 from rdflib.namespace import NamespaceManager
+from rdflib.plugins.sparql import prepareQuery
 from rdflib.term import Identifier
 
-from rdf_transform.config import Check, MapperConfig, SPARQLQuery
+from rdf_transform.config import Check, MapperConfig, SPARQLQuery, check_placeholders
 from rdf_transform.formats import MIME_TO_RDFLIB_FORMAT
 
 MAPPING_GRAPH_NAME = URIRef("urn:rdf-transform:mapping")
@@ -336,9 +336,6 @@ def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperC
 
     Returns:
         One rendered message per failing row, in check order and sorted within each check
-
-    Raises:
-        ValueError: If a message placeholder is not bound by the check's query
     """
     if not config.checks:
         return []
@@ -355,18 +352,19 @@ def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperC
 
     messages = []
     for check in config.checks:
-        result = dataset.query(add_prefixes_to_query(check.query, config))
+        placeholders = check_placeholders(check)
+        result = dataset.query(prepareQuery(check.query, initNs=config.namespaces))
         rows = ({str(var): term for var, term in binding.items()} for binding in result.bindings)
-        messages.extend(sorted(_render_message(check, row, dataset.namespace_manager) for row in rows))
+        messages.extend(sorted(_render_message(check, placeholders, row, dataset.namespace_manager) for row in rows))
     return messages
 
 
-def _render_message(check: Check, bindings: dict[str, Identifier], namespaces: NamespaceManager) -> str:
-    placeholders = [name for _, name, _, _ in string.Formatter().parse(check.message) if name]
-    missing = [name for name in placeholders if name not in bindings]
-    if missing:
-        raise ValueError(f"Check {check.name!r}: message placeholders {missing} are not bound by its query")
-    return check.message.format(**{name: bindings[name].n3(namespaces) for name in placeholders})
+def _render_message(
+    check: Check, placeholders: list[str], bindings: dict[str, Identifier], namespaces: NamespaceManager
+) -> str:
+    """Fill the check's message from one row; a variable the row leaves unbound is written as UNDEF."""
+    values = {name: bindings[name].n3(namespaces) if name in bindings else "UNDEF" for name in placeholders}
+    return check.message.format(**values)
 
 
 def transform_rdf(

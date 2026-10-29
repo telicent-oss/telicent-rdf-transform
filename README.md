@@ -135,7 +135,7 @@ checks:
       }
 ```
 
-If any check returns rows, `transform_rdf` raises `CheckError`, a `ValueError` whose message lists every failure, one per line, in check order and sorted within each check. Checks take `enabled` and `order` like queries. A placeholder that the query does not bind is a configuration error and is reported as such.
+If any check returns rows, `transform_rdf` raises `CheckError`, a `ValueError` whose message lists every failure, one per line, in check order and sorted within each check. Checks take `enabled` and `order` like queries. When the configuration loads, each check's query is parsed, must be a SELECT, and every placeholder in its message must be one of the variables it selects; otherwise loading fails naming the check. A variable that a row leaves unbound, for example inside `OPTIONAL`, is written as `UNDEF`.
 
 ### Namespaces (Optional)
 

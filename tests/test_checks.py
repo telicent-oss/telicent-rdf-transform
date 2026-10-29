@@ -48,14 +48,48 @@ class TestChecksConfig(unittest.TestCase):
         with self.assertRaises(ValueError):
             _config(checks=[{"name": "x", "query": "SELECT ?s WHERE { ?s ?p ?o }"}])
 
+    def test_rejects_unknown_keys(self) -> None:
+        with self.assertRaises(ValueError) as raised:
+            _config(checks=[dict(OLD_TERM_CHECK, enable=False)])
+        self.assertIn("enable", str(raised.exception))
+        self.assertIn("old_terms_remain", str(raised.exception))
+
     def test_rejects_query_that_is_not_a_select(self) -> None:
         with self.assertRaises(ValueError) as raised:
-            _config(checks=[dict(OLD_TERM_CHECK, query="DELETE { ?s ?p ?o } WHERE { ?s ?p ?o }")])
+            _config(checks=[dict(OLD_TERM_CHECK, query="ASK { ?s ?p ?o }")])
         self.assertIn("SELECT", str(raised.exception))
+        self.assertIn("old_terms_remain", str(raised.exception))
 
-    def test_accepts_select_after_prefixes_and_comments(self) -> None:
-        query = "# leftover terms\nPREFIX ex: <http://example.org/>\nSELECT ?s WHERE { ?s ?p ?o }"
-        self.assertEqual(len(_config(checks=[dict(OLD_TERM_CHECK, query=query)]).checks), 1)
+    def test_rejects_query_that_does_not_parse(self) -> None:
+        with self.assertRaises(ValueError) as raised:
+            _config(checks=[dict(OLD_TERM_CHECK, query="SELECT ?s WHERE { ?s ?p }")])
+        self.assertIn("does not parse", str(raised.exception))
+        self.assertIn("old_terms_remain", str(raised.exception))
+
+    def test_accepts_prefixes_comments_and_configured_namespaces(self) -> None:
+        for query in (
+            "# leftover terms\nPREFIX ex: <http://example.org/>\nSELECT ?s WHERE { ?s a ex:Thing }",
+            "PREFIX ex: <http://example.org/> SELECT ?s WHERE { ?s a ex:Thing }",
+            "SELECT ?s WHERE { ?s a ex:Thing }",
+        ):
+            config = _config(checks=[dict(OLD_TERM_CHECK, query=query, message="{s}")])
+            self.assertEqual(len(config.checks), 1, query)
+
+    def test_rejects_placeholder_that_is_not_a_selected_variable(self) -> None:
+        with self.assertRaises(ValueError) as raised:
+            _config(checks=[dict(OLD_TERM_CHECK, message="{subject} {missing}")])
+        self.assertIn("missing", str(raised.exception))
+        self.assertIn("old_terms_remain", str(raised.exception))
+
+    def test_rejects_malformed_message(self) -> None:
+        for message in ("{subject", "{}", "{subject:{object}}", "{0}", "{subject!r}", "{subject.x}"):
+            with self.assertRaises(ValueError, msg=message) as raised:
+                _config(checks=[dict(OLD_TERM_CHECK, message=message)])
+            self.assertIn("old_terms_remain", str(raised.exception))
+
+    def test_checks_built_in_python_are_validated_too(self) -> None:
+        with self.assertRaises(ValueError):
+            MapperConfig(queries=[], namespaces={}, checks=[Check(name="x", query="ASK { ?s ?p ?o }", message="")])
 
 
 class TestRunChecks(unittest.TestCase):
@@ -90,6 +124,14 @@ class TestRunChecks(unittest.TestCase):
         }
         self.assertEqual(run_checks(self.output, None, _config(checks=[check])), ['ex:a has label "x"'])
 
+    def test_variable_left_unbound_by_a_row_is_written_as_undef(self) -> None:
+        check = {
+            "name": "things_with_labels",
+            "message": "{subject} has label {label}",
+            "query": "SELECT ?subject ?label WHERE { ?subject a ex:Thing . OPTIONAL { ?subject ex:label ?label } }",
+        }
+        self.assertEqual(run_checks(self.output, None, _config(checks=[check])), ["ex:a has label UNDEF"])
+
     def test_mapping_graph_is_a_named_graph_and_not_in_the_default_graph(self) -> None:
         mapping = Graph()
         mapping.add((OLD.Thing, OWL.equivalentClass, EX.Thing))
@@ -112,14 +154,6 @@ class TestRunChecks(unittest.TestCase):
         self.assertEqual(
             run_checks(self.output, mapping, _config(checks=[check])), ["old:Thing should have become ex:Thing"]
         )
-
-    def test_unbound_placeholder_is_an_error(self) -> None:
-        self.output.add((EX.b, RDF.type, OLD.Thing))
-        check = dict(OLD_TERM_CHECK, message="{subject} {missing}")
-        with self.assertRaises(ValueError) as raised:
-            run_checks(self.output, None, _config(checks=[check]))
-        self.assertIn("missing", str(raised.exception))
-        self.assertIn("old_terms_remain", str(raised.exception))
 
     def test_messages_follow_check_order(self) -> None:
         self.output.add((EX.b, RDF.type, OLD.Thing))

@@ -1,12 +1,15 @@
 """Configuration system for SPARQL CONSTRUCT queries."""
 
+import string
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import yaml
+from rdflib.plugins.sparql import prepareQuery
 
 REMOVED_KEYS = ("mapping_file", "mapping_file_format")
+CHECK_KEYS = {"name", "query", "message", "description", "enabled", "order"}
 
 
 @dataclass
@@ -51,7 +54,7 @@ class Check:
     """SELECT query returning one row per offending statement"""
 
     message: str
-    """Message reported for each row; {name} placeholders are filled from the row's variables"""
+    """Message reported for each row; each {name} placeholder names a variable the query selects"""
 
     description: str = ""
     """Optional description of what this check guards against"""
@@ -82,6 +85,10 @@ class MapperConfig:
     base_dir: Path = field(default_factory=Path.cwd)
     """Directory that relative mapping file paths are resolved against"""
 
+    def __post_init__(self) -> None:
+        for check in self.checks:
+            validate_check(check, self.namespaces)
+
     @classmethod
     def from_yaml(cls, path: str | Path) -> "MapperConfig":
         """Load configuration from a YAML file.
@@ -96,7 +103,8 @@ class MapperConfig:
 
         Raises:
             FileNotFoundError: If the config file doesn't exist
-            ValueError: If the configuration uses a removed key or a malformed mapping_files or checks entry
+            ValueError: If the configuration uses a removed key, a malformed mapping_files or checks entry,
+                or a check whose query or message is invalid
             yaml.YAMLError: If the YAML is invalid
         """
         config_path = Path(path)
@@ -120,7 +128,8 @@ class MapperConfig:
             MapperConfig instance
 
         Raises:
-            ValueError: If the configuration uses a removed key or a malformed mapping_files or checks entry
+            ValueError: If the configuration uses a removed key, a malformed mapping_files or checks entry,
+                or a check whose query or message is invalid
         """
         for key in REMOVED_KEYS:
             if key in data:
@@ -152,6 +161,62 @@ class MapperConfig:
         )
 
 
+def check_variables(check: Check, namespaces: dict[str, str]) -> list[str]:
+    """Parse a check's query and return the names of the variables it selects.
+
+    Args:
+        check: The check whose query to parse
+        namespaces: Prefixes the query may use without declaring them
+
+    Returns:
+        The selected variable names, without the leading question mark
+
+    Raises:
+        ValueError: If the query is not valid SPARQL or is not a SELECT query
+    """
+    try:
+        parsed = prepareQuery(check.query, initNs=namespaces)
+    except Exception as error:
+        raise ValueError(f"Check {check.name!r}: query does not parse: {error}") from error
+    if parsed.algebra.name != "SelectQuery":
+        raise ValueError(f"Check {check.name!r} must be a SPARQL SELECT query")
+    return [str(variable) for variable in parsed.algebra["PV"]]
+
+
+def check_placeholders(check: Check) -> list[str]:
+    """Return the placeholder names in a check's message.
+
+    Args:
+        check: The check whose message to parse
+
+    Returns:
+        The names inside each {name}, in order of appearance
+
+    Raises:
+        ValueError: If the message has unbalanced braces or a placeholder that is not a plain {name}
+    """
+    try:
+        fields = list(string.Formatter().parse(check.message))
+    except ValueError as error:
+        raise ValueError(f"Check {check.name!r}: message is malformed: {error}") from error
+    names = []
+    for _, name, spec, conversion in fields:
+        if name is None:
+            continue
+        if not name.isidentifier() or spec or conversion:
+            raise ValueError(f"Check {check.name!r}: message placeholders must be plain {{name}}, got {{{name}}}")
+        names.append(name)
+    return names
+
+
+def validate_check(check: Check, namespaces: dict[str, str]) -> None:
+    """Raise ValueError unless the check's query is a SELECT and every message placeholder is a selected variable."""
+    variables = check_variables(check, namespaces)
+    unknown = [name for name in check_placeholders(check) if name not in variables]
+    if unknown:
+        raise ValueError(f"Check {check.name!r}: message placeholders {unknown} are not selected by its query")
+
+
 def _parse_mapping_files(entries: Any) -> list[MappingFile]:
     if not isinstance(entries, list):
         raise ValueError("'mapping_files' must be a list of entries with 'path' and an optional 'format'")
@@ -173,8 +238,9 @@ def _parse_checks(entries: Any) -> list[Check]:
     for entry in entries:
         if not isinstance(entry, dict) or not {"name", "query", "message"} <= set(entry):
             raise ValueError(f"Each 'checks' entry needs 'name', 'query' and 'message', got: {entry!r}")
-        if not _is_select_query(entry["query"]):
-            raise ValueError(f"Check {entry['name']!r} must be a SPARQL SELECT query")
+        unknown = set(entry) - CHECK_KEYS
+        if unknown:
+            raise ValueError(f"Unknown keys in check {entry['name']!r}: {sorted(unknown)}")
         checks.append(
             Check(
                 name=entry["name"],
@@ -187,9 +253,3 @@ def _parse_checks(entries: Any) -> list[Check]:
         )
     checks.sort(key=lambda c: c.order)
     return [c for c in checks if c.enabled]
-
-
-def _is_select_query(query: str) -> bool:
-    lines = [line.strip() for line in query.splitlines()]
-    body = " ".join(line for line in lines if line and not line.upper().startswith(("PREFIX", "#")))
-    return body.upper().startswith("SELECT")
