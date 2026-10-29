@@ -41,6 +41,29 @@ class MappingFile:
 
 
 @dataclass
+class Check:
+    """A SPARQL SELECT query that must return no rows, run on the output after the queries."""
+
+    name: str
+    """Unique identifier for this check"""
+
+    query: str
+    """SELECT query returning one row per offending statement"""
+
+    message: str
+    """Message reported for each row; {name} placeholders are filled from the row's variables"""
+
+    description: str = ""
+    """Optional description of what this check guards against"""
+
+    enabled: bool = True
+    """Whether this check should be run"""
+
+    order: int = 0
+    """Execution order (lower numbers run first)"""
+
+
+@dataclass
 class MapperConfig:
     """Configuration for the RDF transformation pipeline."""
 
@@ -52,6 +75,9 @@ class MapperConfig:
 
     mapping_files: list[MappingFile] = field(default_factory=list)
     """Optional RDF files merged into the working graph before the queries run and removed from the output"""
+
+    checks: list[Check] = field(default_factory=list)
+    """Optional checks run on the output; any row returned fails the transformation"""
 
     base_dir: Path = field(default_factory=Path.cwd)
     """Directory that relative mapping file paths are resolved against"""
@@ -70,7 +96,7 @@ class MapperConfig:
 
         Raises:
             FileNotFoundError: If the config file doesn't exist
-            ValueError: If the configuration uses a removed key or a malformed mapping_files entry
+            ValueError: If the configuration uses a removed key or a malformed mapping_files or checks entry
             yaml.YAMLError: If the YAML is invalid
         """
         config_path = Path(path)
@@ -94,7 +120,7 @@ class MapperConfig:
             MapperConfig instance
 
         Raises:
-            ValueError: If the configuration uses a removed key or a malformed mapping_files entry
+            ValueError: If the configuration uses a removed key or a malformed mapping_files or checks entry
         """
         for key in REMOVED_KEYS:
             if key in data:
@@ -121,6 +147,7 @@ class MapperConfig:
             queries=enabled_queries,
             namespaces=data.get("namespaces", {}),
             mapping_files=_parse_mapping_files(data.get("mapping_files", [])),
+            checks=_parse_checks(data.get("checks", [])),
             base_dir=Path(base_dir) if base_dir is not None else Path.cwd(),
         )
 
@@ -137,3 +164,32 @@ def _parse_mapping_files(entries: Any) -> list[MappingFile]:
             raise ValueError(f"Unknown keys in 'mapping_files' entry {entry['path']!r}: {sorted(unknown)}")
         mapping_files.append(MappingFile(path=str(entry["path"]), format=entry.get("format", "text/turtle")))
     return mapping_files
+
+
+def _parse_checks(entries: Any) -> list[Check]:
+    if not isinstance(entries, list):
+        raise ValueError("'checks' must be a list of entries with 'name', 'query' and 'message'")
+    checks = []
+    for entry in entries:
+        if not isinstance(entry, dict) or not {"name", "query", "message"} <= set(entry):
+            raise ValueError(f"Each 'checks' entry needs 'name', 'query' and 'message', got: {entry!r}")
+        if not _is_select_query(entry["query"]):
+            raise ValueError(f"Check {entry['name']!r} must be a SPARQL SELECT query")
+        checks.append(
+            Check(
+                name=entry["name"],
+                query=entry["query"],
+                message=entry["message"],
+                description=entry.get("description", ""),
+                enabled=entry.get("enabled", True),
+                order=entry.get("order", 0),
+            )
+        )
+    checks.sort(key=lambda c: c.order)
+    return [c for c in checks if c.enabled]
+
+
+def _is_select_query(query: str) -> bool:
+    lines = [line.strip() for line in query.splitlines()]
+    body = " ".join(line for line in lines if line and not line.upper().startswith(("PREFIX", "#")))
+    return body.upper().startswith("SELECT")

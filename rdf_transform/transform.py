@@ -4,12 +4,26 @@ This module contains the core SPARQL CONSTRUCT transformation logic
 separated from the Kafka/Record infrastructure layer.
 """
 
+import string
 import time
 
-from rdflib import Graph
+from rdflib import Dataset, Graph, URIRef
+from rdflib.namespace import NamespaceManager
+from rdflib.term import Identifier
 
-from rdf_transform.config import MapperConfig, SPARQLQuery
+from rdf_transform.config import Check, MapperConfig, SPARQLQuery
 from rdf_transform.formats import MIME_TO_RDFLIB_FORMAT
+
+MAPPING_GRAPH_NAME = URIRef("urn:rdf-transform:mapping")
+"""Name under which the mapping graph is visible to check queries"""
+
+
+class CheckError(ValueError):
+    """Raised when a check returns rows. Each message describes one offending statement."""
+
+    def __init__(self, messages: list[str]) -> None:
+        super().__init__("\n".join(messages))
+        self.messages = messages
 
 
 def parse_rdf(data: str | bytes, format: str, config: MapperConfig) -> Graph:
@@ -309,6 +323,52 @@ def apply_queries(input_graph: Graph, mapping_graph: Graph | None, config: Mappe
     return output_graph
 
 
+def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperConfig) -> list[str]:
+    """Run every check in the configuration against the output graph.
+
+    Each check is a SELECT query, and every row it returns is one failure. The query sees the
+    output graph as its default graph and the mapping graph as the named graph MAPPING_GRAPH_NAME.
+
+    Args:
+        output_graph: The transformed graph, with the mapping triples already removed
+        mapping_graph: Optional mapping graph, made available as a named graph
+        config: Mapper configuration with checks and namespaces
+
+    Returns:
+        One rendered message per failing row, in check order and sorted within each check
+
+    Raises:
+        ValueError: If a message placeholder is not bound by the check's query
+    """
+    if not config.checks:
+        return []
+
+    dataset = Dataset()
+    for prefix, uri in config.namespaces.items():
+        dataset.bind(prefix, uri)
+    for triple in output_graph:
+        dataset.default_graph.add(triple)
+    if mapping_graph is not None:
+        named = dataset.graph(MAPPING_GRAPH_NAME)
+        for triple in mapping_graph:
+            named.add(triple)
+
+    messages = []
+    for check in config.checks:
+        result = dataset.query(add_prefixes_to_query(check.query, config))
+        rows = ({str(var): term for var, term in binding.items()} for binding in result.bindings)
+        messages.extend(sorted(_render_message(check, row, dataset.namespace_manager) for row in rows))
+    return messages
+
+
+def _render_message(check: Check, bindings: dict[str, Identifier], namespaces: NamespaceManager) -> str:
+    placeholders = [name for _, name, _, _ in string.Formatter().parse(check.message) if name]
+    missing = [name for name in placeholders if name not in bindings]
+    if missing:
+        raise ValueError(f"Check {check.name!r}: message placeholders {missing} are not bound by its query")
+    return check.message.format(**{name: bindings[name].n3(namespaces) for name in placeholders})
+
+
 def transform_rdf(
     input_data: bytes,
     input_format: str,
@@ -333,6 +393,7 @@ def transform_rdf(
 
     Raises:
         ValueError: If input or output graph is empty
+        CheckError: If any configured check returns rows
         Exception: If parsing or transformation fails
     """
     start_time = time.time()
@@ -353,6 +414,12 @@ def transform_rdf(
     query_start = time.time()
     output_graph = apply_queries(input_graph, mapping_graph, config)
     timing_metrics["query_time"] = time.time() - query_start
+
+    check_start = time.time()
+    failures = run_checks(output_graph, mapping_graph, config)
+    timing_metrics["check_time"] = time.time() - check_start
+    if failures:
+        raise CheckError(failures)
 
     if len(output_graph) == 0:
         raise ValueError("Output graph is empty after transformations")
