@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.0.0](https://github.com/telicent-oss/telicent-rdf-transform/compare/v0.2.0...v1.0.0) (2026-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace mapping_file with a mapping_files list; supporting multiple RDFs that sort a mapping
+
+### Features
+
+* add output checks that fail a transformation ([1a2e637](https://github.com/telicent-oss/telicent-rdf-transform/commit/1a2e6374828e48e195e53c0ef84de3847a533f62))
+* replace mapping_file with a mapping_files list; supporting multiple RDFs that sort a mapping ([e5eaddf](https://github.com/telicent-oss/telicent-rdf-transform/commit/e5eaddfe309593190ae35da8ccbd77af27e6c1ad))
+
+
+### Bug Fixes
+
+* attach the mapping graph whenever supplied and bind prefixes everywhere ([8b22cfd](https://github.com/telicent-oss/telicent-rdf-transform/commit/8b22cfd7cc052e6e7bd128ce91db0652f44e52d1))
+* detect GRAPH clauses inside FILTER EXISTS when checking for mapping-graph use ([88092a2](https://github.com/telicent-oss/telicent-rdf-transform/commit/88092a22822d836a2f08477e033da5720c251988))
+* make check queries robust against the mapping graph setup ([308a838](https://github.com/telicent-oss/telicent-rdf-transform/commit/308a8385a22a782b19ff594d49c2c0b7c5278817))
+* report identical check messages once and keep CheckError pickle-safe ([fc0f780](https://github.com/telicent-oss/telicent-rdf-transform/commit/fc0f780c97dd19d226165c70563336a24c5c0978))
+* validate checks when the configuration loads ([13247f4](https://github.com/telicent-oss/telicent-rdf-transform/commit/13247f421d644be721fc517ae550b3da2dadbc81))
+
 ## [0.2.0](https://github.com/telicent-oss/telicent-rdf-transform/compare/v0.1.0...v0.2.0) (2026-05-27)
 
 
