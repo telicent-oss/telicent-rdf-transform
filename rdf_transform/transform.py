@@ -22,8 +22,11 @@ class CheckError(ValueError):
     """Raised when a check returns rows. Each message describes one offending statement."""
 
     def __init__(self, messages: list[str]) -> None:
-        super().__init__("\n".join(messages))
+        super().__init__(messages)
         self.messages = messages
+
+    def __str__(self) -> str:
+        return "\n".join(self.messages)
 
 
 def parse_rdf(data: str | bytes, format: str, config: MapperConfig) -> Graph:
@@ -335,7 +338,8 @@ def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperC
         config: Mapper configuration with checks and namespaces
 
     Returns:
-        One rendered message per failing row, in check order and sorted within each check
+        One rendered message per failing row, identical messages reported once, in check order and
+        sorted within each check
 
     Raises:
         ValueError: If a check reads the mapping graph but no mapping graph was supplied
@@ -364,7 +368,7 @@ def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperC
         placeholders = check_placeholders(check)
         result = dataset.query(prepareQuery(check.query, initNs=config.namespaces))
         rows = ({str(var): term for var, term in binding.items()} for binding in result.bindings)
-        messages.extend(sorted(_render_message(check, placeholders, row, dataset.namespace_manager) for row in rows))
+        messages.extend(sorted({_render_message(check, placeholders, row, dataset.namespace_manager) for row in rows}))
     return messages
 
 
@@ -396,7 +400,8 @@ def transform_rdf(
 
     Returns:
         Tuple of (output_data_bytes, timing_metrics)
-        timing_metrics contains: parse_time, query_time, serialize_time, total_time
+        timing_metrics contains: parse_time, query_time, check_time, serialize_time, total_time,
+        input_triples, output_triples
 
     Raises:
         ValueError: If input or output graph is empty

@@ -1,5 +1,6 @@
 """Tests for output checks: SELECT queries that must return no rows."""
 
+import pickle
 import unittest
 
 from rdflib import Graph, Literal, Namespace
@@ -181,6 +182,12 @@ class TestRunChecks(unittest.TestCase):
             run_checks(self.output, None, config), ["schema:alice rdf:type old:Thing .: old:Thing is still an old term"]
         )
 
+    def test_identical_messages_are_reported_once(self) -> None:
+        self.output.add((EX.b, RDF.type, OLD.Thing))
+        self.output.add((EX.c, RDF.type, OLD.Thing))
+        check = dict(OLD_TERM_CHECK, message="{object} remains")
+        self.assertEqual(run_checks(self.output, None, _config(checks=[check])), ["old:Thing remains"])
+
     def test_messages_follow_check_order(self) -> None:
         self.output.add((EX.b, RDF.type, OLD.Thing))
         second = dict(OLD_TERM_CHECK, name="second", message="second: {object}", order=2)
@@ -203,6 +210,11 @@ class TestTransformRdfWithChecks(unittest.TestCase):
         self.assertEqual(raised.exception.messages, ["ex:a rdf:type old:Thing .: old:Thing is still an old term"])
         self.assertEqual(str(raised.exception), "ex:a rdf:type old:Thing .: old:Thing is still an old term")
         self.assertIsInstance(raised.exception, ValueError)
+
+    def test_check_error_survives_pickling(self) -> None:
+        error = pickle.loads(pickle.dumps(CheckError(["a", "b"])))
+        self.assertEqual(error.messages, ["a", "b"])
+        self.assertEqual(str(error), "a\nb")
 
     def test_passing_checks_report_their_time(self) -> None:
         _, metrics = transform_rdf(self.INPUT, "text/turtle", "text/turtle", _config(checks=[]))
