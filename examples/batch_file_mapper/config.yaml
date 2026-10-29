@@ -8,8 +8,9 @@ namespaces:
   owl: "http://www.w3.org/2002/07/owl#"
   tont: "http://telicent.io/ontology/"
 
-mapping_file: mappings.ttl
-mapping_file_format: text/turtle
+mapping_files:
+  - path: mappings.ttl
+    format: text/turtle
 
 queries:
   # Transform properties using owl:equivalentProperty mappings

@@ -10,7 +10,7 @@ from pathlib import Path
 from rdflib import Graph
 
 from rdf_transform import MapperConfig
-from rdf_transform.transform import load_mapping_graph, transform_rdf
+from rdf_transform.transform import load_mapping_graphs, transform_rdf
 
 # Test directories
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "complex_mappings"
@@ -26,13 +26,7 @@ class TestIES4ToIESNextMappings(unittest.TestCase):
         config_path = PROJECT_ROOT / "examples" / "ies4_to_iesnext_mapper" / "mapping-config.yaml"
         self.config = MapperConfig.from_yaml(str(config_path))
 
-        # Load the mapping graph (relative to config file's directory)
-        mapping_file = config_path.parent / self.config.mapping_file
-        self.mapping_graph = load_mapping_graph(
-            str(mapping_file),
-            self.config.mapping_file_format or "turtle",
-            self.config,
-        )
+        self.mapping_graph = load_mapping_graphs(self.config)
 
     def _test_complex_mapping(self, fixture_file, golden_file):
         """Test complex crossing mapping transforms IES4 Crossing to IES Next."""

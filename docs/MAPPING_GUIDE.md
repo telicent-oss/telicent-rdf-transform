@@ -33,14 +33,15 @@ src:Person      owl:equivalentClass     tgt:Human .
 src:Company     owl:equivalentClass     tgt:Organization .
 ```
 
-### 2. Configure Mapping File
+### 2. Configure Mapping Files
 
-If required, add the mapping file path to your config YAML file:
+If required, list the mapping file in your config YAML file:
 
 ```yaml
 # config.example.yaml
-mapping_file: mappings.example.ttl
-mapping_file_format: text/turtle  # Optional, defaults to text/turtle
+mapping_files:
+  - path: mappings.example.ttl
+    format: text/turtle  # Optional, defaults to text/turtle
 
 # Namespaces - primarily for output formatting, secondarily for auto-prefixing queries
 # If your queries include PREFIX declarations, these are only needed for clean output
@@ -53,7 +54,7 @@ queries:
   # ... your queries
 ```
 
-If no mapping file is configured, the transformation runs normally without mappings.
+If no mapping files are configured, the transformation runs normally without mappings. More than one file can be listed, for example a supporting ontology next to the mappings file. All are merged before the queries run and removed from the output.
 
 ### 3. Write Generic SPARQL Queries
 
@@ -388,3 +389,44 @@ WHERE {
   ?sourceProp owl:equivalentProperty ?targetProp .
 }
 ```
+
+## Checks
+
+A check is a SELECT query in the `checks` section of the config that must return no rows once the queries have run. Use checks to make a transformation fail loudly instead of passing problems through: a term from the source ontology still present in the output, a statement with no counterpart in the target, or a mapping entry that points at the wrong kind of thing.
+
+Each row a check returns becomes one message, built from the check's `message`: wherever the message says `{subject}`, the value the row binds to the query variable `?subject` is written in, with its configured prefix.
+
+A check normally looks only at the output. This one reports every statement whose object is still a term from the source ontology:
+
+```yaml
+checks:
+  - name: "source_terms_remain"
+    message: "{subject} {predicate} {object} .: {object} was not mapped"
+    query: |
+      SELECT ?subject ?predicate ?object
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(STRSTARTS(STR(?object), "http://example.org/source#"))
+      }
+```
+
+The mapping files are not part of the output, so that check never sees them. A check that needs to read them wraps the pattern in `GRAPH <urn:rdf-transform:mapping> { ... }`, which is the name the mapping files are kept under. This one finds a source property that the mapping file maps to a class rather than to a property:
+
+```yaml
+checks:
+  - name: "property_mapped_to_a_class"
+    message: "{subject} rdfs:subPropertyOf {property} .: {property} is mapped to the class {class}, not to a property"
+    query: |
+      SELECT ?subject ?property ?class
+      WHERE {
+        ?subject rdfs:subPropertyOf ?property .
+        GRAPH <urn:rdf-transform:mapping> {
+          ?property owl:equivalentClass ?class .
+          FILTER NOT EXISTS {
+            ?property owl:equivalentProperty ?anyProperty .
+          }
+        }
+      }
+```
+
+A failing check raises `CheckError` from `transform_rdf`, with every message from every check, so one run reports everything that is wrong.

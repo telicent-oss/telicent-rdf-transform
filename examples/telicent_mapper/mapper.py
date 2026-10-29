@@ -18,7 +18,7 @@ from telicent_lib.logging import CoreLoggerFactory
 from telicent_lib.sinks import KafkaSink
 from telicent_lib.sources import KafkaSource
 
-from rdf_transform import MapperConfig, load_mapping_graph, transform_rdf
+from rdf_transform import MapperConfig, MappingFile, load_mapping_graphs, transform_rdf
 from rdf_transform.formats import get_rdflib_format_from_mime
 from telicent_mapper.labels import create_security_label
 
@@ -205,27 +205,24 @@ if __name__ == "__main__":
             default="urn:telicent:groups:datasets:mapped"
         )
 
-        # Optionally load RDF mapping graph for ontology mappings
-        # Environment variable takes precedence over config.yaml
-        mapping_file_path = config.get("MAPPING_FILE_PATH", required=False, default=mapper_config.mapping_file)
-        mapping_format = config.get("MAPPING_FILE_FORMAT", required=False, default=mapper_config.mapping_file_format)
-
+        # Optionally load RDF mapping graphs for ontology mappings
+        # MAPPING_FILE_PATH replaces the mapping_files list in config.yaml with one file
+        mapping_file_path = config.get("MAPPING_FILE_PATH", required=False, default=None)
         if mapping_file_path:
-            if not Path(mapping_file_path).exists():
-                logger.warning(f"Mapping file not found: {mapping_file_path}. Continuing without mappings.")
-                mapping_graph = None
-            else:
-                try:
-                    mapping_graph = load_mapping_graph(
-                        source=mapping_file_path, format=mapping_format, config=mapper_config
-                    )
-                    logger.info(f"Loaded mapping file: {mapping_file_path} ({len(mapping_graph)} triples)")
-                except Exception as e:
-                    logger.error(f"Failed to load mapping file {mapping_file_path}: {e}")
-                    mapping_graph = None
-        else:
+            mapping_format = config.get("MAPPING_FILE_FORMAT", required=False, default="text/turtle")
+            mapper_config.mapping_files = [MappingFile(path=mapping_file_path, format=mapping_format)]
+            mapper_config.base_dir = Path.cwd()
+
+        try:
+            mapping_graph = load_mapping_graphs(mapper_config)
+        except Exception as e:
+            logger.error(f"Failed to load mapping files: {e}")
             mapping_graph = None
-            logger.info("No mapping file specified")
+
+        if mapping_graph is None:
+            logger.info("No mapping files specified")
+        else:
+            logger.info(f"Loaded {len(mapper_config.mapping_files)} mapping file(s) ({len(mapping_graph)} triples)")
 
         logger.info(f"Initialized mapper with {len(mapper_config.queries)} queries")
 

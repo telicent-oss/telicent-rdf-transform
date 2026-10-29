@@ -6,10 +6,34 @@ separated from the Kafka/Record infrastructure layer.
 
 import time
 
-from rdflib import Graph
+from rdflib import Dataset, Graph, URIRef
+from rdflib.namespace import NamespaceManager
+from rdflib.plugins.sparql import prepareQuery
+from rdflib.plugins.sparql.parserutils import CompValue
+from rdflib.term import Identifier
 
-from rdf_transform.config import MapperConfig, SPARQLQuery
+from rdf_transform.config import Check, MapperConfig, SPARQLQuery, check_placeholders
 from rdf_transform.formats import MIME_TO_RDFLIB_FORMAT
+
+MAPPING_GRAPH_NAME = URIRef("urn:rdf-transform:mapping")
+"""Name under which the mapping graph is visible to check queries"""
+
+
+class CheckError(ValueError):
+    """Raised when a check returns rows. Each message describes one offending statement."""
+
+    def __init__(self, messages: list[str]) -> None:
+        super().__init__(messages)
+        self.messages = messages
+
+    def __str__(self) -> str:
+        return "\n".join(self.messages)
+
+
+def bind_namespaces(graph: Graph, config: MapperConfig) -> None:
+    """Bind the configured prefixes to a graph, replacing any rdflib default that uses the same prefix."""
+    for prefix, uri in config.namespaces.items():
+        graph.bind(prefix, uri, replace=True)
 
 
 def parse_rdf(data: str | bytes, format: str, config: MapperConfig) -> Graph:
@@ -29,8 +53,7 @@ def parse_rdf(data: str | bytes, format: str, config: MapperConfig) -> Graph:
     graph = Graph()
 
     # Bind configured namespaces for output serialization
-    for prefix, uri in config.namespaces.items():
-        graph.bind(prefix, uri)
+    bind_namespaces(graph, config)
 
     # Handle different data types
     if isinstance(data, bytes):
@@ -74,12 +97,44 @@ def load_mapping_graph(source: str, format: str, config: MapperConfig) -> Graph:
     mapping = Graph()
 
     # Bind namespaces for mappings
-    for prefix, uri in config.namespaces.items():
-        mapping.bind(prefix, uri)
+    bind_namespaces(mapping, config)
 
     # Convert MIME type to rdflib format
     rdflib_format = MIME_TO_RDFLIB_FORMAT.get(format, "turtle")
     mapping.parse(source, format=rdflib_format)
+    return mapping
+
+
+def load_mapping_graphs(config: MapperConfig) -> Graph | None:
+    """Load every mapping file named in the configuration into one graph.
+
+    A relative path is resolved against config.base_dir. A URL is used as given.
+
+    Args:
+        config: Mapper configuration with mapping_files and namespaces
+
+    Returns:
+        Graph holding the triples of every mapping file, or None if none are configured
+
+    Raises:
+        FileNotFoundError: If a mapping file path does not exist
+    """
+    if not config.mapping_files:
+        return None
+
+    mapping = Graph()
+    bind_namespaces(mapping, config)
+
+    for mapping_file in config.mapping_files:
+        if "://" in mapping_file.path:
+            source = mapping_file.path
+        else:
+            resolved = config.base_dir / mapping_file.path
+            if not resolved.exists():
+                raise FileNotFoundError(f"Mapping file not found: {resolved}")
+            source = str(resolved)
+        for triple in load_mapping_graph(source, mapping_file.format, config):
+            mapping.add(triple)
     return mapping
 
 
@@ -101,8 +156,7 @@ def merge_mapping_with_input(input_graph: Graph, mapping_graph: Graph | None, co
     merged = Graph()
 
     # Bind namespaces
-    for prefix, uri in config.namespaces.items():
-        merged.bind(prefix, uri)
+    bind_namespaces(merged, config)
 
     # Add all triples from input
     for triple in input_graph:
@@ -190,8 +244,7 @@ def execute_construct_query(graph: Graph, query_config: SPARQLQuery, config: Map
         result_graph.add(triple)  # type: ignore[arg-type]
 
     # Bind namespaces to the result graph for clean serialization
-    for prefix, uri in config.namespaces.items():
-        result_graph.bind(prefix, uri)
+    bind_namespaces(result_graph, config)
 
     return result_graph
 
@@ -248,8 +301,7 @@ def apply_queries(input_graph: Graph, mapping_graph: Graph | None, config: Mappe
 
     if has_construct:
         output_graph = Graph()
-        for prefix, uri in config.namespaces.items():
-            output_graph.bind(prefix, uri)
+        bind_namespaces(output_graph, config)
     else:
         output_graph = None
 
@@ -275,6 +327,78 @@ def apply_queries(input_graph: Graph, mapping_graph: Graph | None, config: Mappe
     return output_graph
 
 
+def run_checks(output_graph: Graph, mapping_graph: Graph | None, config: MapperConfig) -> list[str]:
+    """Run every check in the configuration against the output graph.
+
+    Each check is a SELECT query, and every row it returns is one failure. The query sees the
+    output graph as its default graph and the mapping graph, when one is supplied, as the named
+    graph MAPPING_GRAPH_NAME.
+
+    Args:
+        output_graph: The transformed graph, with the mapping triples already removed
+        mapping_graph: Optional mapping graph, made available as a named graph
+        config: Mapper configuration with checks and namespaces
+
+    Returns:
+        One rendered message per failing row, identical messages reported once, in check order and
+        sorted within each check
+
+    Raises:
+        ValueError: If a check reads a named graph but no mapping graph was supplied
+    """
+    if not config.checks:
+        return []
+
+    prepared = [(check, prepareQuery(check.query, initNs=config.namespaces)) for check in config.checks]
+    if mapping_graph is None:
+        readers = [check.name for check, query in prepared if _reads_named_graph(query.algebra)]
+        if readers:
+            raise ValueError(f"Checks {readers} read the mapping graph, but no mapping graph was supplied")
+
+    dataset = Dataset()
+    bind_namespaces(dataset, config)
+    for triple in output_graph:
+        dataset.add(triple)
+    if mapping_graph is not None:
+        named = dataset.graph(MAPPING_GRAPH_NAME)
+        for triple in mapping_graph:
+            named.add(triple)
+
+    messages = []
+    for check, query in prepared:
+        placeholders = check_placeholders(check)
+        rows = ({str(var): term for var, term in binding.items()} for binding in dataset.query(query).bindings)
+        messages.extend(sorted({_render_message(check, placeholders, row, dataset.namespace_manager) for row in rows}))
+    return messages
+
+
+def _reads_named_graph(node: object) -> bool:
+    """Whether a parsed query contains a GRAPH clause, naming the graph or using a variable.
+
+    rdflib keeps the pattern inside EXISTS and NOT EXISTS twice: the raw parse tree, with its
+    filters removed, under the node's "graph" key, and the translated pattern in the instance
+    attribute of the same name. Both are walked so a GRAPH clause nested inside a filter counts.
+    """
+    if isinstance(node, CompValue):
+        if node.name in {"Graph", "GraphGraphPattern"}:
+            return True
+        children = list(node.values())
+        if node.name in {"Builtin_EXISTS", "Builtin_NOTEXISTS"}:
+            children.append(vars(node).get("graph"))
+        return any(_reads_named_graph(child) for child in children)
+    if isinstance(node, list | tuple):
+        return any(_reads_named_graph(child) for child in node)
+    return False
+
+
+def _render_message(
+    check: Check, placeholders: list[str], bindings: dict[str, Identifier], namespaces: NamespaceManager
+) -> str:
+    """Fill the check's message from one row; a variable the row leaves unbound is written as UNDEF."""
+    values = {name: bindings[name].n3(namespaces) if name in bindings else "UNDEF" for name in placeholders}
+    return check.message.format(**values)
+
+
 def transform_rdf(
     input_data: bytes,
     input_format: str,
@@ -295,10 +419,12 @@ def transform_rdf(
 
     Returns:
         Tuple of (output_data_bytes, timing_metrics)
-        timing_metrics contains: parse_time, query_time, serialize_time, total_time
+        timing_metrics contains: parse_time, query_time, check_time, serialize_time, total_time,
+        input_triples, output_triples
 
     Raises:
-        ValueError: If input or output graph is empty
+        ValueError: If input or output graph is empty, or a check reads the mapping graph and none was supplied
+        CheckError: If any configured check returns rows
         Exception: If parsing or transformation fails
     """
     start_time = time.time()
@@ -319,6 +445,12 @@ def transform_rdf(
     query_start = time.time()
     output_graph = apply_queries(input_graph, mapping_graph, config)
     timing_metrics["query_time"] = time.time() - query_start
+
+    check_start = time.time()
+    failures = run_checks(output_graph, mapping_graph, config)
+    timing_metrics["check_time"] = time.time() - check_start
+    if failures:
+        raise CheckError(failures)
 
     if len(output_graph) == 0:
         raise ValueError("Output graph is empty after transformations")

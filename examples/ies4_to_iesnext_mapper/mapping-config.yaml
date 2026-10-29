@@ -22,8 +22,9 @@ namespaces:
 
 # Optional: RDF mapping file configuration
 # Path to RDF file with owl:equivalentProperty/Class mappings
-mapping_file: resource-mapping.ttl
-mapping_file_format: text/turtle  # Optional, defaults to text/turtle
+mapping_files:
+  - path: resource-mapping.ttl
+    format: text/turtle  # Optional, defaults to text/turtle
 
 # SPARQL UPDATE queries that use the mapping file
 # All queries use DELETE/INSERT WHERE to modify the working graph in place

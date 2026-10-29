@@ -7,8 +7,9 @@ namespaces:
   owl: "http://www.w3.org/2002/07/owl#"
   rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
-mapping_file: mappings.ttl
-mapping_file_format: text/turtle
+mapping_files:
+  - path: mappings.ttl
+    format: text/turtle
 
 queries:
   # Map classes using owl:equivalentClass from the mapping file

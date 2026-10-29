@@ -32,13 +32,13 @@ source .venv/bin/activate
 Use the transformation logic directly in any Python application:
 
 ```python
-from rdf_transform import MapperConfig, load_mapping_graph, transform_rdf
+from rdf_transform import MapperConfig, load_mapping_graphs, transform_rdf
 
 # Load configuration
 config = MapperConfig.from_yaml("config.example.yaml")
 
-# Optionally load ontology mappings
-mapping = load_mapping_graph("mappings.example.ttl", "text/turtle", config)
+# Optionally load the mapping files named in the config (None if there are none)
+mapping = load_mapping_graphs(config)
 
 # Read input RDF
 with open("input.ttl", "rb") as f:
@@ -85,15 +85,17 @@ queries:
 
 Queries are sorted by `order` and only enabled queries are executed. Queries execute in order regardless of type - UPDATE queries modify the working graph in place, while CONSTRUCT query results are merged into the final output.
 
-### Mapping File (Optional)
+### Mapping Files (Optional)
 
-For simple 1:1 mappings between RDF resources (e.g., mapping one class or property URI to another), you can define these maps using a separate RDF file which utilises `owl:equivalentProperty` or `owl:equivalentClass` assertions.
+Any RDF the queries need alongside the input can be named under `mapping_files`. The usual case is a file that maps each old term to its new one with `owl:equivalentProperty` and `owl:equivalentClass`, but an ontology or any other supporting RDF can be listed too.
 
-When provided, the mapping file is temporarily merged with the input data before queries run, allowing your SPARQL queries to reference these relationships. These mapping triples are later, automatically removed from the final output.
+Every listed file is merged with the input data before the queries run, so your SPARQL queries can match its triples. All of those triples are removed from the output afterwards. A relative path is resolved against the directory of the config file; a URL is used as given.
 
 ```yaml
-mapping_file: ontology_mappings.ttl
-mapping_file_format: text/turtle  # default if not specified
+mapping_files:
+  - path: ontology_mappings.ttl
+    format: text/turtle  # default if not specified
+  - path: supporting_ontology.ttl
 ```
 
 An example of a mapping file is provided below:
@@ -114,6 +116,27 @@ old:worksFor  owl:equivalentProperty new:employedBy .
 
 This is useful when you want to keep your mapping definitions separate from your SPARQL queries, or when the same mappings are shared across multiple configurations.
 
+### Checks (Optional)
+
+A check is a SPARQL SELECT query that must return no rows. Each row it does return is one failure, reported with the check's `message`. For every variable the query selects, such as `?subject`, the message may contain `{subject}`, which is replaced with the value that row binds to it. Values are written as they would be in Turtle: a URI with its configured prefix, such as `ex:Thing`, and a literal in quotes, such as `"text"`.
+
+Checks run after all queries. A check's query sees the transformed output and the mapping files if provided, so a check can consult the mappings without those triples counting as output. The [mapping guide](docs/MAPPING_GUIDE.md#checks) shows how a check reads the mapping files.
+
+```yaml
+checks:
+  - name: "old_terms_remain"
+    description: "Every term from the old ontology should have been replaced"
+    message: "{subject} {predicate} {object} .: {object} is still an old-ontology term"
+    query: |
+      SELECT ?subject ?predicate ?object
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(STRSTARTS(STR(?object), "http://example.org/old-ontology#"))
+      }
+```
+
+If any check returns rows, `transform_rdf` raises `CheckError`, a `ValueError` whose message lists every failure, one per line, in check order and sorted within each check, with identical messages reported once. Checks take `enabled` and `order` like queries. When the configuration loads, each check's query is parsed, must be a SELECT, and every placeholder in its message must be one of the variables it selects; otherwise loading fails naming the check. A variable that a row leaves unbound, for example inside `OPTIONAL`, is written as `UNDEF`. A check that reads the mapping graph when no mapping graph was supplied is a configuration error: `run_checks` raises `ValueError` naming the check.
+
 ### Namespaces (Optional)
 
 Namespace prefixes which shall be used in the subsequently defined SPARQL queries. For RDF serializations that support prefixes (e.g. text/turtle), these will be used as PREFIX declarations. Note, you can still make prefix declarations in the SPARQL queries.
@@ -132,8 +155,9 @@ The library raises exceptions in the following cases:
 - **Invalid RDF syntax**: `rdflib.exceptions.ParserError` with details about the parsing failure
 - **Empty input**: `ValueError` if the input graph contains no triples
 - **Empty output**: `ValueError` if all triples are filtered out after transformation
-- **Missing mapping file**: `FileNotFoundError` if the configured mapping file path doesn't exist
+- **Missing mapping file**: `FileNotFoundError` if a configured mapping file path doesn't exist
 - **Invalid SPARQL**: `rdflib` exceptions with query syntax error details
+- **Failed checks**: `CheckError`, a `ValueError`, listing one message per offending statement
 
 Queries that produce no results are not errors - they simply contribute no triples to the output.
 
@@ -146,15 +170,17 @@ When `transform_rdf()` is called, the following steps occur:
 
 1. **Parse input** - The input RDF data is parsed into a working graph.
 
-2. **Merge mapping file** - If a mapping file is configured, its `owl:equivalentProperty` and `owl:equivalentClass` triples are added to the working graph. This allows your SPARQL queries to reference these `owl:equivalentProperty`/`owl:equivalentClass` relationships.
+2. **Merge mapping files** - The triples of every configured mapping file are added to the working graph, so your SPARQL queries can utilise them.
 
 3. **Execute queries** - Enabled queries run in `order` sequence:
    - **UPDATE queries** (DELETE/INSERT) modify the working graph in place
    - **CONSTRUCT queries** generate new triples that are collected into a separate output graph
 
-4. **Remove mapping triples** - The mapping file triples are removed from the output, so they don't pollute your transformed data.
+4. **Remove mapping triples** - The mapping files' triples are removed from the output, so they don't pollute your transformed data.
 
-5. **Serialize output** - The final graph is serialized to the requested output format.
+5. **Run checks** - Each configured check query runs against the output, with the mapping triples reachable as a named graph. Any row returned stops the transformation with a `CheckError`.
+
+6. **Serialize output** - The final graph is serialized to the requested output format.
 
 The working graph approach means UPDATE queries can prepare data for subsequent CONSTRUCT queries, enabling multi-stage transformations.
 
@@ -163,7 +189,7 @@ The working graph approach means UPDATE queries can prepare data for subsequent 
 | Term | Definition |
 |------|------------|
 | **Working graph** | The in-memory RDF graph containing input data merged with mapping triples. UPDATE queries modify this graph. |
-| **Mapping graph** | RDF graph loaded from the mapping file, containing `owl:equivalentProperty` and `owl:equivalentClass` assertions. |
+| **Mapping graph** | RDF graph holding the triples of every configured mapping file. |
 | **Output graph** | The final RDF graph containing results from CONSTRUCT queries (or the modified working graph if only UPDATE queries are used). |
 | **Triple** | A single RDF statement consisting of subject, predicate, and object. |
 
@@ -299,7 +325,9 @@ pre-commit run --all-files
 | Function | Description |
 |----------|-------------|
 | `transform_rdf(input_data, input_format, output_format, config, mapping_graph)` | Main entry point. Transforms RDF data and returns `(output_bytes, metrics)` |
-| `load_mapping_graph(source, format, config)` | Load ontology mappings from a file path or URL |
+| `load_mapping_graphs(config)` | Load every mapping file named in the config into one graph, or `None` if there are none |
+| `load_mapping_graph(source, format, config)` | Load one RDF file or URL into a graph |
+| `run_checks(output_graph, mapping_graph, config)` | Run the configured checks and return the failure messages, identical ones once |
 | `parse_rdf(data, format, config)` | Parse RDF data into an rdflib Graph |
 | `serialize_rdf(graph, output_format)` | Serialize a Graph to bytes |
 
@@ -309,11 +337,14 @@ pre-commit run --all-files
 |-------|-------------|
 | `MapperConfig` | Main configuration container. Use `MapperConfig.from_yaml(path)` to load |
 | `SPARQLQuery` | Individual query definition with name, query, enabled, and order fields |
+| `MappingFile` | One `mapping_files` entry, with `path` and `format` |
+| `Check` | One `checks` entry, with `name`, `query`, `message`, `enabled` and `order` |
 
 ### Exceptions
 
 - **`ValueError`**: Raised when input graph is empty or output graph is empty after transformation
-- **`FileNotFoundError`**: Raised when mapping file path cannot be found
+- **`FileNotFoundError`**: Raised when a mapping file path cannot be found
+- **`CheckError`**: Raised when a check returns rows; `messages` holds one entry per row
 - **`rdflib.exceptions.ParserError`**: Raised when RDF parsing fails (invalid syntax)
 
 
