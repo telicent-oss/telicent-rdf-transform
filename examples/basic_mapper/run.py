@@ -11,7 +11,7 @@ Or from the examples/basic_mapper directory:
 
 from pathlib import Path
 
-from rdf_transform import MapperConfig, load_mapping_graph, transform_rdf
+from rdf_transform import MapperConfig, load_mapping_graphs, transform_rdf
 
 
 def main():
@@ -28,15 +28,9 @@ def main():
     config = MapperConfig.from_yaml(config_path)
     print(f"Loaded config: {len(config.queries)} queries")
 
-    # Load mapping graph (path is relative to config file location)
-    mapping_graph = None
-    if config.mapping_file:
-        mapping_file_path = config_path.parent / config.mapping_file
-        mapping_graph = load_mapping_graph(
-            source=str(mapping_file_path),
-            format=config.mapping_file_format,
-            config=config,
-        )
+    # Load mapping graphs (paths are relative to the config file location)
+    mapping_graph = load_mapping_graphs(config)
+    if mapping_graph is not None:
         print(f"Loaded mappings: {len(mapping_graph)} triples")
 
     # Read input
