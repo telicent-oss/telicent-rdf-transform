@@ -33,14 +33,15 @@ src:Person      owl:equivalentClass     tgt:Human .
 src:Company     owl:equivalentClass     tgt:Organization .
 ```
 
-### 2. Configure Mapping File
+### 2. Configure Mapping Files
 
-If required, add the mapping file path to your config YAML file:
+If required, list the mapping file in your config YAML file:
 
 ```yaml
 # config.example.yaml
-mapping_file: mappings.example.ttl
-mapping_file_format: text/turtle  # Optional, defaults to text/turtle
+mapping_files:
+  - path: mappings.example.ttl
+    format: text/turtle  # Optional, defaults to text/turtle
 
 # Namespaces - primarily for output formatting, secondarily for auto-prefixing queries
 # If your queries include PREFIX declarations, these are only needed for clean output
@@ -53,7 +54,7 @@ queries:
   # ... your queries
 ```
 
-If no mapping file is configured, the transformation runs normally without mappings.
+If no mapping files are configured, the transformation runs normally without mappings. More than one file can be listed, for example a supporting ontology next to the mappings file. All are merged before the queries run and removed from the output.
 
 ### 3. Write Generic SPARQL Queries
 

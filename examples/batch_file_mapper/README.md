@@ -60,10 +60,10 @@ The `mapper.py` module provides two utility functions:
 
 ```python
 from examples.batch_file_mapper.mapper import transform_file, transform_directory
-from rdf_transform import MapperConfig, load_mapping_graph
+from rdf_transform import MapperConfig, load_mapping_graphs
 
 config = MapperConfig.from_yaml("config.yaml")
-mapping = load_mapping_graph("mappings.ttl", "text/turtle", config)
+mapping = load_mapping_graphs(config)
 
 # Transform a single file
 metrics = transform_file("input.ttl", "output.ttl", config, mapping)
