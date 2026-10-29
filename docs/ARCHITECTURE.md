@@ -152,7 +152,8 @@ Input RDF (bytes)
 │ 2. Merge mapping file      │
 │ 3. Execute SPARQL queries  │
 │ 4. Remove mapping triples  │
-│ 5. Serialize → bytes       │
+│ 5. Run checks              │
+│ 6. Serialize → bytes       │
 └────────┬───────────────────┘
          │
          ▼

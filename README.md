@@ -116,6 +116,27 @@ old:worksFor  owl:equivalentProperty new:employedBy .
 
 This is useful when you want to keep your mapping definitions separate from your SPARQL queries, or when the same mappings are shared across multiple configurations.
 
+### Checks (Optional)
+
+A check is a SPARQL SELECT query that must return no rows. Each row it does return is one failure, reported with the check's `message`. For every variable the query selects, such as `?subject`, the message may contain `{subject}`, which is replaced with the value that row binds to it. Values are written as they would be in Turtle: a URI with its configured prefix, such as `ex:Thing`, and a literal in quotes, such as `"text"`.
+
+Checks run after all queries. A check's query sees the transformed output and the mapping files if provided, so a check can consult the mappings without those triples counting as output. The [mapping guide](docs/MAPPING_GUIDE.md#checks) shows how a check reads the mapping files.
+
+```yaml
+checks:
+  - name: "old_terms_remain"
+    description: "Every term from the old ontology should have been replaced"
+    message: "{subject} {predicate} {object} .: {object} is still an old-ontology term"
+    query: |
+      SELECT ?subject ?predicate ?object
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(STRSTARTS(STR(?object), "http://example.org/old-ontology#"))
+      }
+```
+
+If any check returns rows, `transform_rdf` raises `CheckError`, a `ValueError` whose message lists every failure, one per line, in check order and sorted within each check, with identical messages reported once. Checks take `enabled` and `order` like queries. When the configuration loads, each check's query is parsed, must be a SELECT, and every placeholder in its message must be one of the variables it selects; otherwise loading fails naming the check. A variable that a row leaves unbound, for example inside `OPTIONAL`, is written as `UNDEF`. A check that reads the mapping graph when no mapping graph was supplied is a configuration error: `run_checks` raises `ValueError` naming the check.
+
 ### Namespaces (Optional)
 
 Namespace prefixes which shall be used in the subsequently defined SPARQL queries. For RDF serializations that support prefixes (e.g. text/turtle), these will be used as PREFIX declarations. Note, you can still make prefix declarations in the SPARQL queries.
@@ -136,6 +157,7 @@ The library raises exceptions in the following cases:
 - **Empty output**: `ValueError` if all triples are filtered out after transformation
 - **Missing mapping file**: `FileNotFoundError` if a configured mapping file path doesn't exist
 - **Invalid SPARQL**: `rdflib` exceptions with query syntax error details
+- **Failed checks**: `CheckError`, a `ValueError`, listing one message per offending statement
 
 Queries that produce no results are not errors - they simply contribute no triples to the output.
 
@@ -156,7 +178,9 @@ When `transform_rdf()` is called, the following steps occur:
 
 4. **Remove mapping triples** - The mapping files' triples are removed from the output, so they don't pollute your transformed data.
 
-5. **Serialize output** - The final graph is serialized to the requested output format.
+5. **Run checks** - Each configured check query runs against the output, with the mapping triples reachable as a named graph. Any row returned stops the transformation with a `CheckError`.
+
+6. **Serialize output** - The final graph is serialized to the requested output format.
 
 The working graph approach means UPDATE queries can prepare data for subsequent CONSTRUCT queries, enabling multi-stage transformations.
 
@@ -293,6 +317,7 @@ pre-commit run --all-files
 | `transform_rdf(input_data, input_format, output_format, config, mapping_graph)` | Main entry point. Transforms RDF data and returns `(output_bytes, metrics)` |
 | `load_mapping_graphs(config)` | Load every mapping file named in the config into one graph, or `None` if there are none |
 | `load_mapping_graph(source, format, config)` | Load one RDF file or URL into a graph |
+| `run_checks(output_graph, mapping_graph, config)` | Run the configured checks and return the failure messages, identical ones once |
 | `parse_rdf(data, format, config)` | Parse RDF data into an rdflib Graph |
 | `serialize_rdf(graph, output_format)` | Serialize a Graph to bytes |
 
@@ -303,11 +328,13 @@ pre-commit run --all-files
 | `MapperConfig` | Main configuration container. Use `MapperConfig.from_yaml(path)` to load |
 | `SPARQLQuery` | Individual query definition with name, query, enabled, and order fields |
 | `MappingFile` | One `mapping_files` entry, with `path` and `format` |
+| `Check` | One `checks` entry, with `name`, `query`, `message`, `enabled` and `order` |
 
 ### Exceptions
 
 - **`ValueError`**: Raised when input graph is empty or output graph is empty after transformation
 - **`FileNotFoundError`**: Raised when a mapping file path cannot be found
+- **`CheckError`**: Raised when a check returns rows; `messages` holds one entry per row
 - **`rdflib.exceptions.ParserError`**: Raised when RDF parsing fails (invalid syntax)
 
 
