@@ -125,10 +125,10 @@ Each example imports from rdf_transform/ and adds its own integration logic.
 
 ### As a Library
 ```python
-from rdf_transform import MapperConfig, transform_rdf, load_mapping_graph
+from rdf_transform import MapperConfig, transform_rdf, load_mapping_graphs
 
 config = MapperConfig.from_yaml("config.yaml")
-mapping = load_mapping_graph("mappings.ttl", "text/turtle", config)
+mapping = load_mapping_graphs(config)
 output, metrics = transform_rdf(input_data, "text/turtle", "text/turtle", config, mapping)
 ```
 

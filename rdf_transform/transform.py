@@ -83,6 +83,40 @@ def load_mapping_graph(source: str, format: str, config: MapperConfig) -> Graph:
     return mapping
 
 
+def load_mapping_graphs(config: MapperConfig) -> Graph | None:
+    """Load every mapping file named in the configuration into one graph.
+
+    A relative path is resolved against config.base_dir. A URL is used as given.
+
+    Args:
+        config: Mapper configuration with mapping_files and namespaces
+
+    Returns:
+        Graph holding the triples of every mapping file, or None if none are configured
+
+    Raises:
+        FileNotFoundError: If a mapping file path does not exist
+    """
+    if not config.mapping_files:
+        return None
+
+    mapping = Graph()
+    for prefix, uri in config.namespaces.items():
+        mapping.bind(prefix, uri)
+
+    for mapping_file in config.mapping_files:
+        if "://" in mapping_file.path:
+            source = mapping_file.path
+        else:
+            resolved = config.base_dir / mapping_file.path
+            if not resolved.exists():
+                raise FileNotFoundError(f"Mapping file not found: {resolved}")
+            source = str(resolved)
+        for triple in load_mapping_graph(source, mapping_file.format, config):
+            mapping.add(triple)
+    return mapping
+
+
 def merge_mapping_with_input(input_graph: Graph, mapping_graph: Graph | None, config: MapperConfig) -> Graph:
     """Merge the mapping graph with the input graph for query processing.
 
