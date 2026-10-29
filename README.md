@@ -135,7 +135,7 @@ checks:
       }
 ```
 
-If any check returns rows, `transform_rdf` raises `CheckError`, a `ValueError` whose message lists every failure, one per line, in check order and sorted within each check, with identical messages reported once. Checks take `enabled` and `order` like queries. When the configuration loads, each check's query is parsed, must be a SELECT, and every placeholder in its message must be one of the variables it selects; otherwise loading fails naming the check. A variable that a row leaves unbound, for example inside `OPTIONAL`, is written as `UNDEF`.
+If any check returns rows, `transform_rdf` raises `CheckError`, a `ValueError` whose message lists every failure, one per line, in check order and sorted within each check, with identical messages reported once. Checks take `enabled` and `order` like queries. When the configuration loads, each check's query is parsed, must be a SELECT, and every placeholder in its message must be one of the variables it selects; otherwise loading fails naming the check. A variable that a row leaves unbound, for example inside `OPTIONAL`, is written as `UNDEF`. A check that reads the mapping graph when no mapping graph was supplied is a configuration error: `run_checks` raises `ValueError` naming the check.
 
 ### Namespaces (Optional)
 
@@ -317,7 +317,7 @@ pre-commit run --all-files
 | `transform_rdf(input_data, input_format, output_format, config, mapping_graph)` | Main entry point. Transforms RDF data and returns `(output_bytes, metrics)` |
 | `load_mapping_graphs(config)` | Load every mapping file named in the config into one graph, or `None` if there are none |
 | `load_mapping_graph(source, format, config)` | Load one RDF file or URL into a graph |
-| `run_checks(output_graph, mapping_graph, config)` | Run the configured checks and return one message per failing row |
+| `run_checks(output_graph, mapping_graph, config)` | Run the configured checks and return the failure messages, identical ones once |
 | `parse_rdf(data, format, config)` | Parse RDF data into an rdflib Graph |
 | `serialize_rdf(graph, output_format)` | Serialize a Graph to bytes |
 

@@ -133,15 +133,22 @@ class TestRunChecks(unittest.TestCase):
         }
         self.assertEqual(run_checks(self.output, None, _config(checks=[check])), ["ex:a has label UNDEF"])
 
-    def test_mapping_graph_is_not_in_the_default_graph(self) -> None:
+    def test_mapping_graph_is_attached_but_not_in_the_default_graph(self) -> None:
         mapping = Graph()
         mapping.add((OLD.Thing, OWL.equivalentClass, EX.Thing))
-        check = {
+        leak = {
             "name": "mapping_entries_leaked",
             "message": "{subject} is a mapping entry",
             "query": "SELECT ?subject WHERE { ?subject owl:equivalentClass ?target }",
         }
-        self.assertEqual(run_checks(self.output, mapping, _config(checks=[check])), [])
+        reader = {
+            "name": "mapping_entries_by_name",
+            "message": "{subject} is in the mapping graph",
+            "query": "SELECT ?subject WHERE { GRAPH ?g { ?subject owl:equivalentClass ?target } }",
+        }
+        self.assertEqual(
+            run_checks(self.output, mapping, _config(checks=[leak, reader])), ["old:Thing is in the mapping graph"]
+        )
 
     def test_mapping_graph_is_readable_by_name(self) -> None:
         mapping = Graph()
@@ -173,6 +180,24 @@ class TestRunChecks(unittest.TestCase):
         with self.assertRaises(ValueError) as raised:
             run_checks(self.output, None, _config(checks=[check]))
         self.assertIn("needs_mapping", str(raised.exception))
+
+    def test_graph_variable_counts_as_reading_the_mapping_graph(self) -> None:
+        check = {
+            "name": "needs_mapping",
+            "message": "{subject}",
+            "query": "SELECT ?subject WHERE { GRAPH ?g { ?subject ?p ?o } }",
+        }
+        with self.assertRaises(ValueError) as raised:
+            run_checks(self.output, None, _config(checks=[check]))
+        self.assertIn("needs_mapping", str(raised.exception))
+
+    def test_graph_name_in_a_comment_does_not_count(self) -> None:
+        check = {
+            "name": "no_graph",
+            "message": "{subject}",
+            "query": "# see urn:rdf-transform:mapping\nSELECT ?subject WHERE { ?subject a old:Thing }",
+        }
+        self.assertEqual(run_checks(self.output, None, _config(checks=[check])), [])
 
     def test_configured_prefix_wins_over_rdflib_default(self) -> None:
         schema = Namespace("http://schema.org/")
