@@ -223,7 +223,7 @@ See [examples/batch_file_mapper/README.md](https://github.com/telicent-oss/telic
 
 A work-in-progress configuration for transforming IES4 ontology data to IES Next. Includes comprehensive SPARQL queries, mapping files, and test fixtures. The configuration for this mapper is being actively developed alongside the development of the IES Next ontology stack.
 
-See [examples/ies4_to_iesnext_mapper/](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples/ies4_to_iesnext_mapper) for the configuration and test files.
+See [examples/ies4_to_iesnext_mapper/README.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/examples/ies4_to_iesnext_mapper/README.md) for the configuration and test files.
 
 ### ies4_extension_to_iesnext_mapper
 
