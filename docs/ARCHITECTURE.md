@@ -15,6 +15,7 @@ telicent-rdf-transform/
 │   ├── basic_mapper/               Single-file transformation example
 │   ├── batch_file_mapper/          Directory batch processing example
 │   ├── ies4_to_iesnext_mapper/     IES4 to IES Next configuration
+│   ├── ies4_extension_to_iesnext_mapper/  IES4 ontology extensions to IES Next extensions
 │   └── telicent_mapper/            Telicent Kafka streaming example
 │
 ├── tests/                          TESTS
@@ -87,6 +88,7 @@ examples/
   ├── basic_mapper/           Single-file transformation
   ├── batch_file_mapper/      Directory batch processing
   ├── ies4_to_iesnext_mapper/ Production IES4→IESNext config
+  ├── ies4_extension_to_iesnext_mapper/ IES4 ontology extensions → IESNext extensions
   └── telicent_mapper/        Kafka streaming integration
 
 Each example imports from rdf_transform/ and adds its own integration logic.
@@ -137,6 +139,7 @@ The `examples/` directory contains reference implementations for different use c
 - `basic_mapper/` - Simple single-file transformation
 - `batch_file_mapper/` - Batch directory processing
 - `ies4_to_iesnext_mapper/` - WIP IES4 to IES Next configuration
+- `ies4_extension_to_iesnext_mapper/` - IES4 ontology extensions to IES Next extensions
 - `telicent_mapper/` - Kafka streaming integration
 
 ## Data Flow

@@ -1,0 +1,1 @@
+ont_next:ragConfidence rdfs:subPropertyOf ies:confidence .: ies:confidence is not a property in IES-Next. It is now a class: ies_sec:AssessToBeTrue. There is no IES-Next property for ont_next:ragConfidence to specialise; remodel it against ies_sec:AssessToBeTrue.

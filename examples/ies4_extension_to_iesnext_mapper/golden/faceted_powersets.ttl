@@ -1,0 +1,35 @@
+# Faceted classification with powersets (extending-ies.md, "Complex Extensions"). IES 4.3 has
+# no ies:ClassOfDevice; the powerset hierarchy hangs off ies:ClassOfAsset, the powerset of ies:Asset.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ies_top: <http://purl.org/ies/top/v0/ont/> .
+@prefix ies_tport: <http://purl.org/ies/tport/v0/ont/> .
+@prefix ont_next: <http://example.com/local-ontology-next#> .
+
+ont_next:ClassOfShip a rdfs:Class,
+        ies_top:SetOfSetOfStates ;
+    rdfs:subClassOf ies_top:SetOfStates .
+
+ont_next:ClassOfFunctionalUseOfShip a rdfs:Class ;
+    rdfs:subClassOf ont_next:ClassOfShip .
+
+ont_next:ClassOfPoweredShip a rdfs:Class ;
+    rdfs:subClassOf ont_next:ClassOfShip .
+
+ont_next:PassengerShip a skos:Concept,
+        ont_next:ClassOfFunctionalUseOfShip ;
+    skos:broader ies_tport:Ship .
+
+ont_next:CargoShip a skos:Concept,
+        ont_next:ClassOfFunctionalUseOfShip ;
+    skos:broader ies_tport:Ship .
+
+ont_next:WindPoweredShip a skos:Concept,
+        ont_next:ClassOfPoweredShip ;
+    skos:broader ies_tport:Ship .
+
+ont_next:NuclearPoweredShip a skos:Concept,
+        ont_next:ClassOfPoweredShip ;
+    skos:broader ies_tport:Ship .
+
+ies_tport:Ship ies_top:powertype ont_next:ClassOfShip .

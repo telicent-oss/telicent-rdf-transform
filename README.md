@@ -195,7 +195,7 @@ The working graph approach means UPDATE queries can prepare data for subsequent 
 
 ## Examples
 
-The [`/examples`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples) directory contains four examples demonstrating different use cases:
+The [`/examples`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples) directory contains examples demonstrating different use cases:
 
 ### basic_mapper
 
@@ -223,7 +223,17 @@ See [examples/batch_file_mapper/README.md](https://github.com/telicent-oss/telic
 
 A work-in-progress configuration for transforming IES4 ontology data to IES Next. Includes comprehensive SPARQL queries, mapping files, and test fixtures. The configuration for this mapper is being actively developed alongside the development of the IES Next ontology stack.
 
-See [examples/ies4_to_iesnext_mapper/](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples/ies4_to_iesnext_mapper) for the configuration and test files.
+See [examples/ies4_to_iesnext_mapper/README.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/examples/ies4_to_iesnext_mapper/README.md) for the configuration and test files.
+
+### ies4_extension_to_iesnext_mapper
+
+A work-in-progress configuration for porting ontology extensions written against IES4 to IES Next. Local RDFS classes that only add a narrower taxonomic extensions to IES4 become SKOS concepts, while classes that carry their own relationships or attributes, stay RDFS classes. This is as per the current IES-Core documentation describes. Every IES4 term is then replaced with its IES Next equivalent. Not every extension can be mapped: the example's README lists those cases.
+
+```bash
+python examples/ies4_extension_to_iesnext_mapper/run.py my_extension.ttl my_extension_iesnext.ttl
+```
+
+See [examples/ies4_extension_to_iesnext_mapper/README.md](https://github.com/telicent-oss/telicent-rdf-transform/blob/main/examples/ies4_extension_to_iesnext_mapper/README.md) for details.
 
 ### telicent_mapper
 
