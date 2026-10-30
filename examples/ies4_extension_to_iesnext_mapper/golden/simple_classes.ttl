@@ -2,17 +2,17 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix ies_tport: <http://purl.org/ies/tport/v0/ont/> .
-@prefix ont: <http://example.com/local-ontology#> .
+@prefix ont_next: <http://example.com/local-ontology-next#> .
 
-ont:PassengerShip a skos:Concept ;
+ont_next:PassengerShip a skos:Concept ;
     skos:broader ies_tport:Ship ;
     rdfs:label "Passenger Ship" ;
     rdfs:comment "A ship whose primary function is carrying passengers." .
 
-ont:CargoShip a skos:Concept ;
+ont_next:CargoShip a skos:Concept ;
     skos:broader ies_tport:Ship ;
     rdfs:label "Cargo Ship" .
 
-ont:ContainerShip a skos:Concept ;
-    skos:broader ont:CargoShip ;
+ont_next:ContainerShip a skos:Concept ;
+    skos:broader ont_next:CargoShip ;
     rdfs:label "Container Ship" .

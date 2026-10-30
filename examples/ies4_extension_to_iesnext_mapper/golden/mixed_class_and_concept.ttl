@@ -1,22 +1,22 @@
-# A class with its own attribute, and a taxonomy entry under it. ont:Submarine is the domain of
-# a local attribute, so it stays a class. ont:NuclearSubmarine adds nothing new, so it becomes a concept.
+# A class with its own attribute, and a taxonomy entry under it. ont_next:Submarine is the domain of
+# a local attribute, so it stays a class. ont_next:NuclearSubmarine adds nothing new, so it becomes a concept.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix ies_core: <http://purl.org/ies/core/v0/ont/> .
-@prefix ont: <http://example.com/local-ontology#> .
+@prefix ont_next: <http://example.com/local-ontology-next#> .
 
-ont:Submarine a rdfs:Class ;
+ont_next:Submarine a rdfs:Class ;
     rdfs:subClassOf ies_core:Vehicle ;
     rdfs:label "Submarine" .
 
-ont:maximumDivingDepth a owl:DatatypeProperty ;
+ont_next:maximumDivingDepth a owl:DatatypeProperty ;
     rdfs:subPropertyOf ies_core:attribute ;
-    rdfs:domain ont:Submarine ;
+    rdfs:domain ont_next:Submarine ;
     rdfs:range xsd:decimal ;
     rdfs:label "maximum diving depth" .
 
-ont:NuclearSubmarine a skos:Concept ;
-    skos:broader ont:Submarine ;
+ont_next:NuclearSubmarine a skos:Concept ;
+    skos:broader ont_next:Submarine ;
     rdfs:label "Nuclear Submarine" .

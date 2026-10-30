@@ -25,3 +25,5 @@ ont:WindPoweredShip a ont:ClassOfPoweredShip ;
 
 ont:NuclearPoweredShip a ont:ClassOfPoweredShip ;
     rdfs:subClassOf ies:Ship .
+
+ies:Ship ies:powertype ont:ClassOfShip .

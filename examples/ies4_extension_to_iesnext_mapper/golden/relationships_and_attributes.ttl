@@ -5,25 +5,25 @@
 @prefix ies_core: <http://purl.org/ies/core/v0/ont/> .
 @prefix ies_social: <http://purl.org/ies/social/v0/ont/> .
 @prefix ies_tport: <http://purl.org/ies/tport/v0/ont/> .
-@prefix ont: <http://example.com/local-ontology#> .
+@prefix ont_next: <http://example.com/local-ontology-next#> .
 
-ont:motherOf a owl:ObjectProperty ;
+ont_next:motherOf a owl:ObjectProperty ;
     rdfs:subPropertyOf ies_social:parentOf ;
     rdfs:domain ies_core:Person ;
     rdfs:range ies_core:Person ;
     rdfs:label "mother of" .
 
-ont:fatherOf a owl:ObjectProperty ;
+ont_next:fatherOf a owl:ObjectProperty ;
     rdfs:subPropertyOf ies_social:parentOf ;
     rdfs:label "father of" .
 
 # these below properties are not faithful to the IES approach,
 # there are provided just for test coverage reasons
-ont:hasCallSign a owl:ObjectProperty ;
+ont_next:hasCallSign a owl:ObjectProperty ;
     rdfs:subPropertyOf ies_core:hasName ;
     rdfs:domain ies_tport:Ship ;
     rdfs:range ies_core:Name .
 
-ont:callSignValue a owl:DatatypeProperty ;
+ont_next:callSignValue a owl:DatatypeProperty ;
     rdfs:subPropertyOf ies_core:representationValue ;
     rdfs:domain ies_core:Name .

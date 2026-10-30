@@ -195,7 +195,7 @@ The working graph approach means UPDATE queries can prepare data for subsequent 
 
 ## Examples
 
-The [`/examples`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples) directory contains four examples demonstrating different use cases:
+The [`/examples`](https://github.com/telicent-oss/telicent-rdf-transform/tree/main/examples) directory contains examples demonstrating different use cases:
 
 ### basic_mapper
 
@@ -227,7 +227,7 @@ See [examples/ies4_to_iesnext_mapper/](https://github.com/telicent-oss/telicent-
 
 ### ies4_extension_to_iesnext_mapper
 
-Ports ontology extensions written against IES4 to IES Next. Local classes that only add a narrower kind of an existing thing become SKOS concepts, local powersets become SKOS collections, and classes that carry their own relationships or attributes, or are typed with an IES4 class, stay RDFS classes, as the IES-Core documentation describes. Every IES4 term is then replaced with its IES Next equivalent. Not every extension can be mapped: the example's README lists the cases the mapper turns away, such as a class placed under an IES4 class that is a SKOS concept in IES Next.
+A work-in-progress configuration for porting ontology extensions written against IES4 to IES Next. Local RDFS classes that only add a narrower taxonomic extensions to IES4 become SKOS concepts, while classes that carry their own relationships or attributes, stay RDFS classes. This is as per the current IES-Core documentation describes. Every IES4 term is then replaced with its IES Next equivalent. Not every extension can be mapped: the example's README lists those cases.
 
 ```bash
 python examples/ies4_extension_to_iesnext_mapper/run.py my_extension.ttl my_extension_iesnext.ttl

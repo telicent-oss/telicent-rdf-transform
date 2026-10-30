@@ -1,29 +1,35 @@
 # Faceted classification with powersets (extending-ies.md, "Complex Extensions"). IES 4.3 has
 # no ies:ClassOfDevice; the powerset hierarchy hangs off ies:ClassOfAsset, the powerset of ies:Asset.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ies_top: <http://purl.org/ies/top/v0/ont/> .
 @prefix ies_tport: <http://purl.org/ies/tport/v0/ont/> .
-@prefix ont: <http://example.com/local-ontology#> .
+@prefix ont_next: <http://example.com/local-ontology-next#> .
 
-ont:ClassOfShip a skos:Collection ;
-    skos:member ont:ClassOfFunctionalUseOfShip,
-        ont:ClassOfPoweredShip .
+ont_next:ClassOfShip a rdfs:Class,
+        ies_top:SetOfSetOfStates ;
+    rdfs:subClassOf ies_top:SetOfStates .
 
-ont:ClassOfFunctionalUseOfShip a skos:Collection ;
-    skos:member ont:PassengerShip,
-        ont:CargoShip .
+ont_next:ClassOfFunctionalUseOfShip a rdfs:Class ;
+    rdfs:subClassOf ont_next:ClassOfShip .
 
-ont:ClassOfPoweredShip a skos:Collection ;
-    skos:member ont:WindPoweredShip,
-        ont:NuclearPoweredShip .
+ont_next:ClassOfPoweredShip a rdfs:Class ;
+    rdfs:subClassOf ont_next:ClassOfShip .
 
-ont:PassengerShip a skos:Concept ;
+ont_next:PassengerShip a skos:Concept,
+        ont_next:ClassOfFunctionalUseOfShip ;
     skos:broader ies_tport:Ship .
 
-ont:CargoShip a skos:Concept ;
+ont_next:CargoShip a skos:Concept,
+        ont_next:ClassOfFunctionalUseOfShip ;
     skos:broader ies_tport:Ship .
 
-ont:WindPoweredShip a skos:Concept ;
+ont_next:WindPoweredShip a skos:Concept,
+        ont_next:ClassOfPoweredShip ;
     skos:broader ies_tport:Ship .
 
-ont:NuclearPoweredShip a skos:Concept ;
+ont_next:NuclearPoweredShip a skos:Concept,
+        ont_next:ClassOfPoweredShip ;
     skos:broader ies_tport:Ship .
+
+ies_tport:Ship ies_top:powertype ont_next:ClassOfShip .

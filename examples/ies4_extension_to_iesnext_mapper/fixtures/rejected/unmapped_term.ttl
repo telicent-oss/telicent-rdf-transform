@@ -1,0 +1,7 @@
+# A class under an IES4 class that the mapping file has no entry for. A check rejects it.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:Hovercraft a rdfs:Class ;
+    rdfs:subClassOf ies:Entity .
