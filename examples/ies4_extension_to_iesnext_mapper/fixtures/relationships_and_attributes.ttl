@@ -1,0 +1,27 @@
+# New relationships and attributes extending IES4 properties, with domain and range
+# (extending-ies.md, "Defining New Attributes and Relationships").
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:motherOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf ies:parentOf ;
+    rdfs:domain ies:Person ;
+    rdfs:range ies:Person ;
+    rdfs:label "mother of" .
+
+ont:fatherOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf ies:parentOf ;
+    rdfs:label "father of" .
+
+# these below properties are not faithful to the IES approach,
+# there are provided just for test coverage reasons
+ont:hasCallSign a owl:ObjectProperty ;
+    rdfs:subPropertyOf ies:hasName ;
+    rdfs:domain ies:Ship ;
+    rdfs:range ies:Name .
+
+ont:callSignValue a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ies:representationValue ;
+    rdfs:domain ies:Name .

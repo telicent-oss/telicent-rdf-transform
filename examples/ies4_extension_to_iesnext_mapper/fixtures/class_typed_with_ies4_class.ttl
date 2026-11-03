@@ -1,0 +1,10 @@
+# A class typed with an IES4 class. ies:ClassOfAsset is the powerset of ies:Asset, so the typing
+# says PassengerShip is a class of asset. It is an IES statement by the author, so the class stays
+# a class and the typing is kept and mapped.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:PassengerShip a rdfs:Class,
+        ies:ClassOfAsset ;
+    rdfs:subClassOf ies:Ship .

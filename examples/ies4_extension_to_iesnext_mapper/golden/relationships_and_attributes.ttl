@@ -1,0 +1,29 @@
+# New relationships and attributes extending IES4 properties, with domain and range
+# (extending-ies.md, "Defining New Attributes and Relationships").
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ies_core: <http://purl.org/ies/core/v0/ont/> .
+@prefix ies_social: <http://purl.org/ies/social/v0/ont/> .
+@prefix ies_tport: <http://purl.org/ies/tport/v0/ont/> .
+@prefix ont_next: <http://example.com/local-ontology-next#> .
+
+ont_next:motherOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf ies_social:parentOf ;
+    rdfs:domain ies_core:Person ;
+    rdfs:range ies_core:Person ;
+    rdfs:label "mother of" .
+
+ont_next:fatherOf a owl:ObjectProperty ;
+    rdfs:subPropertyOf ies_social:parentOf ;
+    rdfs:label "father of" .
+
+# these below properties are not faithful to the IES approach,
+# there are provided just for test coverage reasons
+ont_next:hasCallSign a owl:ObjectProperty ;
+    rdfs:subPropertyOf ies_core:hasName ;
+    rdfs:domain ies_tport:Ship ;
+    rdfs:range ies_core:Name .
+
+ont_next:callSignValue a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ies_core:representationValue ;
+    rdfs:domain ies_core:Name .

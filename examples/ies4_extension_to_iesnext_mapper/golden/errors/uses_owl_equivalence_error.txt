@@ -1,0 +1,1 @@
+ont_next:Boat owl:equivalentClass ies:Ship .: owl:equivalentClass is reserved for the mapping file. Extend IES4 with rdfs:subClassOf and rdfs:subPropertyOf.

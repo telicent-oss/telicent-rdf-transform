@@ -1,0 +1,15 @@
+# A new entity with its own state class (extending-ies.md, "Specific guidance for
+# extending Entities"). The entity is a subclass of both the IES4 entity and its new state.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:Submarine a rdfs:Class ;
+    rdfs:subClassOf ies:Vehicle,
+        ont:SubmarineState .
+
+ont:SubmarineState a rdfs:Class ;
+    rdfs:subClassOf ies:VehicleState .
+
+ont:Submerged a rdfs:Class ;
+    rdfs:subClassOf ont:SubmarineState .

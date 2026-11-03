@@ -1,0 +1,17 @@
+# New local classes extending an IES4 class (extending-ies.md, "Defining New Local Classes").
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:PassengerShip a rdfs:Class ;
+    rdfs:subClassOf ies:Ship ;
+    rdfs:label "Passenger Ship" ;
+    rdfs:comment "A ship whose primary function is carrying passengers." .
+
+ont:CargoShip a rdfs:Class ;
+    rdfs:subClassOf ies:Ship ;
+    rdfs:label "Cargo Ship" .
+
+ont:ContainerShip a rdfs:Class ;
+    rdfs:subClassOf ont:CargoShip ;
+    rdfs:label "Container Ship" .

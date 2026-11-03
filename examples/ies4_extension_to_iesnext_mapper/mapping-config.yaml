@@ -1,0 +1,272 @@
+---
+# Maps an IES4 ontology extension to IES-Next.
+#
+# IES-Core keeps RDFS subclassing for extensions that bring their own relationships or attributes,
+# and expresses everything else as a SKOS taxonomy. The queries below rebuild the extension in
+# that form and then replace every IES4 term with its IES-Next equivalent. The checks then stop
+# the run if anything is left that has no IES-Next form.
+#
+# A local term is any term outside the IES4 namespace, the W3C vocabularies and the IES-Next namespaces.
+# Every local class ends up in one of these roles:
+#   class     - a class that is the rdfs:domain or rdfs:range of a local property, is typed with an
+#               IES4 class, is the rdf:type of another local class, or is named by ies:powertype,
+#               stays an RDFS class. Powersets fall here for now; their handling is provisional,
+#               see the README.
+#   concept   - any other class. Becomes a skos:Concept with skos:broader to its parent.
+#
+
+namespaces:
+  ies: "http://ies.data.gov.uk/ontology/ies4#"
+  ies_admin: "http://purl.org/ies/admin/v0/ont/"
+  ies_core: "http://purl.org/ies/core/v0/ont/"
+  ies_cycom: "http://purl.org/ies/cycom/v0/ont/"
+  ies_fincom: "http://purl.org/ies/fincom/v0/ont/"
+  ies_sec: "http://purl.org/ies/sec/v0/ont/"
+  ies_social: "http://purl.org/ies/social/v0/ont/"
+  ies_top: "http://purl.org/ies/top/v0/ont/"
+  ies_tport: "http://purl.org/ies/tport/v0/ont/"
+  dcterms: "http://purl.org/dc/terms/"
+  geo: "http://www.opengis.net/ont/geosparql#"
+  qudt: "http://qudt.org/schema/qudt/"
+  quantitykind: "http://qudt.org/vocab/quantitykind/"
+  unit: "http://qudt.org/vocab/unit/"
+  skos: "http://www.w3.org/2004/02/skos/core#"
+  owl: "http://www.w3.org/2002/07/owl#"
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+  ont: "http://example.com/local-ontology#"
+  ont_next: "http://example.com/local-ontology-next#"
+
+mapping_files:
+  - path: ../ies4_to_iesnext_mapper/resource-mapping.ttl
+    format: text/turtle
+  - path: ontologies/ies-top.ttl
+  - path: ontologies/ies-core.ttl
+
+queries:
+  - name: "taxonomy_classes_become_concepts"
+    description: "A local class with no properties of its own, no IES4 type, no instances among the local classes and no powertype statement becomes a skos:Concept under its parent"
+    enabled: true
+    order: 1
+    query: |
+      DELETE {
+        ?class a rdfs:Class .
+        ?class rdfs:subClassOf ?parent .
+      }
+      INSERT {
+        ?class a skos:Concept .
+        ?class skos:broader ?parent .
+      }
+      WHERE {
+        ?class rdfs:subClassOf ?parent .
+        FILTER(
+          !STRSTARTS(STR(?class), "http://ies.data.gov.uk/ontology/ies4#")
+          && !STRSTARTS(STR(?class), "http://www.w3.org/")
+          && !STRSTARTS(STR(?class), "http://purl.org/ies/")
+        )
+        FILTER NOT EXISTS {
+          ?property rdfs:domain ?class .
+        }
+        FILTER NOT EXISTS {
+          ?property rdfs:range ?class .
+        }
+        FILTER NOT EXISTS {
+          ?class a ?type .
+          FILTER(STRSTARTS(STR(?type), "http://ies.data.gov.uk/ontology/ies4#"))
+        }
+        FILTER NOT EXISTS {
+          ?member a ?class .
+          FILTER(
+            !STRSTARTS(STR(?member), "http://ies.data.gov.uk/ontology/ies4#")
+            && !STRSTARTS(STR(?member), "http://www.w3.org/")
+            && !STRSTARTS(STR(?member), "http://purl.org/ies/")
+          )
+        }
+        FILTER NOT EXISTS {
+          ?anyClass ies:powertype ?class .
+        }
+      }
+
+  - name: "map_classes_in_object_position"
+    description: "IES4 classes that are the object of rdf:type, rdfs:subClassOf, rdfs:domain, rdfs:range or skos:broader on a local subject"
+    enabled: true
+    order: 2
+    query: |
+      DELETE {
+        ?subject ?predicate ?ies4Class .
+      }
+      INSERT {
+        ?subject ?predicate ?iesNextClass .
+      }
+      WHERE {
+        ?subject ?predicate ?ies4Class .
+        ?ies4Class owl:equivalentClass ?iesNextClass .
+        FILTER(?predicate IN (rdf:type, rdfs:subClassOf, rdfs:domain, rdfs:range, skos:broader))
+        FILTER(
+          !STRSTARTS(STR(?subject), "http://ies.data.gov.uk/ontology/ies4#")
+          && !STRSTARTS(STR(?subject), "http://www.w3.org/")
+          && !STRSTARTS(STR(?subject), "http://purl.org/ies/")
+        )
+      }
+
+  - name: "map_properties_in_object_position"
+    description: "IES4 properties that are the object of rdfs:subPropertyOf on a local subject"
+    enabled: true
+    order: 3
+    query: |
+      DELETE {
+        ?subject rdfs:subPropertyOf ?ies4Property .
+      }
+      INSERT {
+        ?subject rdfs:subPropertyOf ?iesNextProperty .
+      }
+      WHERE {
+        ?subject rdfs:subPropertyOf ?ies4Property .
+        ?ies4Property owl:equivalentProperty ?iesNextProperty .
+        FILTER(
+          !STRSTARTS(STR(?subject), "http://ies.data.gov.uk/ontology/ies4#")
+          && !STRSTARTS(STR(?subject), "http://www.w3.org/")
+          && !STRSTARTS(STR(?subject), "http://purl.org/ies/")
+        )
+      }
+
+  - name: "map_properties_in_predicate_position"
+    description: "IES4 properties used as a predicate, such as ies:powertype"
+    enabled: true
+    order: 4
+    query: |
+      DELETE {
+        ?subject ?ies4Property ?object .
+      }
+      INSERT {
+        ?subject ?iesNextProperty ?object .
+      }
+      WHERE {
+        ?subject ?ies4Property ?object .
+        ?ies4Property owl:equivalentProperty ?iesNextProperty .
+      }
+
+  - name: "map_classes_in_powertype_subject_position"
+    description: "The IES4 class whose powerset a powertype statement names"
+    enabled: true
+    order: 5
+    query: |
+      DELETE {
+        ?ies4Class ies_top:powertype ?powerset .
+      }
+      INSERT {
+        ?iesNextClass ies_top:powertype ?powerset .
+      }
+      WHERE {
+        ?ies4Class ies_top:powertype ?powerset .
+        ?ies4Class owl:equivalentClass ?iesNextClass .
+      }
+
+  - name: "move_local_subjects_to_the_new_namespace"
+    description: "Every local term in subject position moves from the extension's IES4 namespace to its IES-Next namespace"
+    enabled: true
+    order: 6
+    query: |
+      DELETE {
+        ?subject ?predicate ?object .
+      }
+      INSERT {
+        ?renamed ?predicate ?object .
+      }
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(STRSTARTS(STR(?subject), "http://example.com/local-ontology#"))
+        BIND(IRI(CONCAT("http://example.com/local-ontology-next#", STRAFTER(STR(?subject), "http://example.com/local-ontology#"))) AS ?renamed)
+      }
+
+  - name: "move_local_objects_to_the_new_namespace"
+    description: "Every local term in object position moves from the extension's IES4 namespace to its IES-Next namespace"
+    enabled: true
+    order: 7
+    query: |
+      DELETE {
+        ?subject ?predicate ?object .
+      }
+      INSERT {
+        ?subject ?predicate ?renamed .
+      }
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(STRSTARTS(STR(?object), "http://example.com/local-ontology#"))
+        BIND(IRI(CONCAT("http://example.com/local-ontology-next#", STRAFTER(STR(?object), "http://example.com/local-ontology#"))) AS ?renamed)
+      }
+
+# Each check is a SELECT that must return no rows. A row stops the run with the check's message.
+checks:
+  - name: "terms_declared_in_ies4_namespace"
+    description: "An extension may not declare or change terms in the IES4 namespace"
+    order: 1
+    message: "{subject} {predicate} {object} .: {subject} is declared in the IES4 namespace. Declare extension terms in a local namespace."
+    query: |
+      SELECT ?subject ?predicate ?object
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(STRSTARTS(STR(?subject), "http://ies.data.gov.uk/ontology/ies4#"))
+      }
+
+  - name: "owl_equivalence_in_extension"
+    description: "owl:equivalentClass, owl:equivalentProperty and owl:sameAs are reserved for the mapping file"
+    order: 2
+    message: "{subject} {predicate} {object} .: {predicate} is reserved for the mapping file. Extend IES4 with rdfs:subClassOf and rdfs:subPropertyOf."
+    query: |
+      SELECT ?subject ?predicate ?object
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(?predicate IN (owl:equivalentClass, owl:equivalentProperty, owl:sameAs))
+      }
+
+  - name: "property_that_became_a_class"
+    description: "An IES4 property that the mapping file maps to a class has no IES-Next property to specialise"
+    order: 3
+    message: "{subject} rdfs:subPropertyOf {property} .: {property} is not a property in IES-Next. It is now a class: {class}. There is no IES-Next property for {subject} to specialise; remodel it against {class}."
+    query: |
+      SELECT ?subject ?property ?class
+      WHERE {
+        ?subject rdfs:subPropertyOf ?property .
+        GRAPH <urn:rdf-transform:mapping> {
+          ?property owl:equivalentClass ?class .
+          FILTER NOT EXISTS {
+            ?property owl:equivalentProperty ?anyProperty .
+          }
+        }
+      }
+
+  - name: "ies4_term_without_mapping_entry"
+    description: "An IES4 term in a position the queries map, which the mapping file does not know"
+    order: 4
+    message: "{subject} {predicate} {object} .: {object} has no entry in the mapping file."
+    query: |
+      SELECT ?subject ?predicate ?object
+      WHERE {
+        ?subject ?predicate ?object .
+        FILTER(?predicate IN (rdf:type, rdfs:subClassOf, rdfs:subPropertyOf, rdfs:domain, rdfs:range, skos:broader))
+        FILTER(STRSTARTS(STR(?object), "http://ies.data.gov.uk/ontology/ies4#"))
+        FILTER NOT EXISTS {
+          GRAPH <urn:rdf-transform:mapping> {
+            ?object ?mapping ?target .
+          }
+        }
+      }
+
+  - name: "class_under_an_iesnext_concept"
+    description: "A class cannot subclass an IES-Next term that is a SKOS concept rather than a class"
+    order: 5
+    message: "{subject} rdfs:subClassOf {concept} .: {concept} is a SKOS concept in IES-Next, not a class, so {subject} cannot subclass it. Either keep {subject} as a class under {class} and give its data {concept} as ies_core:category, or make {subject} a concept with skos:broader {concept} and move the domain of its properties to {class}."
+    query: |
+      SELECT ?subject ?concept ?class
+      WHERE {
+        ?subject rdfs:subClassOf ?concept .
+        GRAPH <urn:rdf-transform:mapping> {
+          ?concept a skos:Concept .
+          ?concept skos:broader+ ?class .
+          FILTER NOT EXISTS {
+            ?class a skos:Concept .
+          }
+        }
+      }

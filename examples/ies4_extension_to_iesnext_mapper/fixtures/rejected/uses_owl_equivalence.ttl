@@ -1,0 +1,6 @@
+# An extension that uses owl:equivalentClass, which is reserved for the mapping file. A check should reject it.
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:Boat owl:equivalentClass ies:Ship .

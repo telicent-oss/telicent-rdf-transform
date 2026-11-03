@@ -1,0 +1,14 @@
+# A class with its own attribute whose IES4 parent is a SKOS concept in IES-Next, so there is
+# no IES-Next class to subclass. A check should reject it.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ies: <http://ies.data.gov.uk/ontology/ies4#> .
+@prefix ont: <http://example.com/local-ontology#> .
+
+ont:Bank a rdfs:Class ;
+    rdfs:subClassOf ies:CommercialOrganisation .
+
+ont:sortCode a owl:DatatypeProperty ;
+    rdfs:domain ont:Bank ;
+    rdfs:range xsd:string .

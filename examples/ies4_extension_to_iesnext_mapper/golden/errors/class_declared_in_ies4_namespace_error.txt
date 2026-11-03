@@ -1,0 +1,2 @@
+ies:Hovercraft rdf:type rdfs:Class .: ies:Hovercraft is declared in the IES4 namespace. Declare extension terms in a local namespace.
+ies:Hovercraft rdfs:subClassOf ies:Vehicle .: ies:Hovercraft is declared in the IES4 namespace. Declare extension terms in a local namespace.
